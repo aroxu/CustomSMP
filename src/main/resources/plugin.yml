@@ -1,5 +1,5 @@
-name: ProjName
-main: me.aroxu.projname.ProjNamePlugin
+name: CustomSMPPlugin
+main: me.aroxu.customsmp.CustomSMPPlugin
 version: $version
 api-version: '1.17'
 

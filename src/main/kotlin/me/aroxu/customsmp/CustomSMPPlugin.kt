@@ -1,17 +1,17 @@
-package me.aroxu.projname
+package me.aroxu.customsmp
 
 import io.github.monun.kommand.kommand
-import me.aroxu.projname.ProjNameCommand.register
+import me.aroxu.customsmp.CustomSMPCommand.register
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
  * @author aroxu
  */
 
-class ProjName : JavaPlugin() {
+class CustomSMPPlugin : JavaPlugin() {
     override fun onEnable() {
         kommand {
-            register("projname") {
+            register("customsmp") {
                 register(this)
             }
         }
