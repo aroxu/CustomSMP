@@ -6,7 +6,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
 
 
-class DamageEvent: Listener {
+class KillEvent: Listener {
     @EventHandler
     fun onPlayerDeathByPlayer(event: PlayerDeathEvent) {
         if (event.entity.killer is Player) {
