@@ -33,7 +33,7 @@ tasks {
     }
 
     register<Jar>("paperJar") {
-        archiveBaseName.set("ProjName")
+        archiveBaseName.set("CustomSMP")
         from(sourceSets["main"].output)
 
         doLast {
