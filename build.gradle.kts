@@ -9,11 +9,15 @@ repositories {
     maven("https://repo.maven.apache.org/maven2/")
     maven("https://papermc.io/repo/repository/maven-public/")
 }
-
+val exposedVersion:String = "0.34.2"
 dependencies {
     implementation(kotlin("stdlib-jdk8:1.5.21"))
     implementation("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
     implementation("io.github.monun:kommand-api:2.6.6")
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.xerial:sqlite-jdbc:3.36.0.2")
 }
 
 tasks {
