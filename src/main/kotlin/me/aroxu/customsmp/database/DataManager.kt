@@ -130,7 +130,7 @@ object DataManager {
             transaction {
                 IsInWar.select {
                     IsInWar.player eq targetPlayer
-                }.single().also { result = BoolConvert.IntToBool(it[IsInWar.isInWar]) }
+                }.single().also { result = BoolConvert.intToBool(it[IsInWar.isInWar]) }
             }
         } catch (e: NoSuchElementException) {
             plugin.logger.warning("[DataBase] 해당 유저를 찾을 수 없습니다.")
@@ -145,12 +145,12 @@ object DataManager {
                     IsInWar.player eq targetPlayer
                 }.single()
                 IsInWar.update({IsInWar.player eq targetPlayer}) {
-                    it[isInWar] = BoolConvert.BoolToInt(targetIsInWar)
+                    it[isInWar] = BoolConvert.boolToInt(targetIsInWar)
                 }
             } catch (e: NoSuchElementException) {
                 IsInWar.insert {
                     it[player] = targetPlayer
-                    it[isInWar] = BoolConvert.BoolToInt(targetIsInWar)
+                    it[isInWar] = BoolConvert.boolToInt(targetIsInWar)
                 }
             }
         }
