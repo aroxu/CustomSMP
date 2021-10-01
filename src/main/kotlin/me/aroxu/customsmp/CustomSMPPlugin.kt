@@ -5,6 +5,8 @@ import me.aroxu.customsmp.CustomSMPCommand.register
 import me.aroxu.customsmp.database.DataManager
 import me.aroxu.customsmp.events.EventInitializer
 import me.aroxu.customsmp.handler.PlayerDataHandler.handleData
+import me.aroxu.customsmp.tasks.ActionBarTask
+import me.aroxu.customsmp.tasks.TabListTask
 import me.aroxu.customsmp.utils.ColorByLife
 import me.aroxu.customsmp.utils.ColorByLife.WHITE
 import net.kyori.adventure.text.Component.text
@@ -27,6 +29,9 @@ class CustomSMPPlugin : JavaPlugin() {
         var warLife = HashMap<UUID, Int>()
         var isInWar = HashMap<UUID, Boolean>()
         var isPlayerDataReady = HashMap<UUID, Boolean>()
+        var teamNames = HashMap<UUID, String>()
+        var teamsData = HashMap<UUID, Any>()
+        var teamsUuid = emptyArray<UUID>()
     }
 
     override fun onEnable() {
@@ -54,36 +59,7 @@ class CustomSMPPlugin : JavaPlugin() {
             }
         }
 
-        // Repeating Task for ActionBar, run every 5 ticks. (4 times per seconds)
-        server.scheduler.scheduleSyncRepeatingTask(plugin, {
-            server.onlinePlayers.forEach { player ->
-                if (isPlayerDataReady[player.uniqueId]!! && player.gameMode == GameMode.SURVIVAL) {
-                    val isTargetPlayerInWar = isInWar[player.uniqueId]
-                    val targetPlayerSurvivalLife = survivalLife[player.uniqueId]
-                    val targetPlayerSurvivalLifeActionBarText = "현재 남은 생존 목숨 : ${targetPlayerSurvivalLife!!}"
-
-                    var actionBarTextComponent =
-                        text(targetPlayerSurvivalLifeActionBarText).decorate(TextDecoration.BOLD)
-                            .color(ColorByLife.getSurvivalColorByLife(targetPlayerSurvivalLife))
-                    if (isTargetPlayerInWar!!) {
-                        actionBarTextComponent.append(text(" | ").color(WHITE))
-                        val targetPlayerWarLife = warLife[player.uniqueId]
-                        val targetPlayerWarLifeActionBarText = "현재 남은 전쟁 목숨 : ${targetPlayerWarLife!!}"
-                        actionBarTextComponent =
-                            text(targetPlayerSurvivalLifeActionBarText).decorate(TextDecoration.BOLD)
-                                .color(ColorByLife.getSurvivalColorByLife(targetPlayerSurvivalLife))
-                                .append(
-                                    text(" | ").decorate(TextDecoration.BOLD).color(
-                                        WHITE
-                                    )
-                                ).append(
-                                    text(targetPlayerWarLifeActionBarText).decorate(TextDecoration.BOLD)
-                                        .color(ColorByLife.getWarColorByLife(targetPlayerWarLife))
-                                )
-                    }
-                    player.sendActionBar(actionBarTextComponent)
-                }
-            }
-        }, 0, 5)
+        ActionBarTask.registerRepeatingActionBarTask()
+        TabListTask.registerRepeatingTabListTask()
     }
 }
