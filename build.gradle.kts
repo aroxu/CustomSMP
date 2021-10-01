@@ -9,7 +9,7 @@ repositories {
     maven("https://repo.maven.apache.org/maven2/")
     maven("https://papermc.io/repo/repository/maven-public/")
 }
-val exposedVersion:String = "0.34.2"
+val exposedVersion:String = "0.35.1"
 dependencies {
     implementation(kotlin("stdlib-jdk8:1.5.21"))
     implementation("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
