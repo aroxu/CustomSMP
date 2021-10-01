@@ -15,6 +15,7 @@ import org.bukkit.GameMode
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 /**
@@ -25,13 +26,13 @@ class CustomSMPPlugin : JavaPlugin() {
     companion object {
         lateinit var plugin: JavaPlugin
             private set
-        var survivalLife = HashMap<UUID, Int>()
-        var warLife = HashMap<UUID, Int>()
-        var isInWar = HashMap<UUID, Boolean>()
-        var isPlayerDataReady = HashMap<UUID, Boolean>()
-        var teamNames = HashMap<UUID, String>()
-        var teamsData = HashMap<UUID, Any>()
-        var teamsUuid = emptyArray<UUID>()
+        var survivalLife:HashMap<UUID, Int> = HashMap()
+        var warLife:HashMap<UUID, Int> = HashMap()
+        var isInWar:HashMap<UUID, Boolean> = HashMap()
+        var isPlayerDataReady:HashMap<UUID, Boolean> = HashMap()
+        var teamsName:HashMap<UUID, String> = HashMap()
+        var teamsMember: HashMap<UUID, Array<UUID>> = HashMap()
+        var teamsUuid: List<UUID> = emptyList()
     }
 
     override fun onEnable() {
