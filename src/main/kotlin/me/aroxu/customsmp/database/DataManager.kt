@@ -69,6 +69,7 @@ object DataManager {
                     CREATE TABLE "TeamsMember" (
                         "uuid"    TEXT NOT NULL UNIQUE,
                         "members"    TEXT NOT NULL,
+                        PRIMARY KEY("uuid")
                     );
                     """
                 )
