@@ -38,8 +38,7 @@ class CustomSMPPlugin : JavaPlugin() {
         // Initialize Plugin Database
         val dbFile = File(plugin.dataFolder, "csmptw.db")
         dbFile.absoluteFile.parentFile.mkdirs()
-        val isNewDbFile = !dbFile.exists()
-        DataManager.initDatabaseWithSqlite(dbFile, isNewDbFile)
+        DataManager.initDatabaseWithSqlite(dbFile, !dbFile.exists())
 
         // Initialize Plugin Command Handler
         kommand {
