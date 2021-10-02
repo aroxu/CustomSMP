@@ -11,13 +11,13 @@ repositories {
 }
 val exposedVersion:String = "0.35.1"
 dependencies {
-    implementation(kotlin("stdlib-jdk8:1.5.21"))
-    implementation("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
-    implementation("io.github.monun:kommand-api:2.6.6")
-    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    implementation("org.xerial:sqlite-jdbc:3.36.0.2")
+    compileOnly(kotlin("stdlib-jdk8:1.5.21"))
+    compileOnly("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
+    compileOnly("io.github.monun:kommand-api:2.6.6")
+    compileOnly("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    compileOnly("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    compileOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    compileOnly("org.xerial:sqlite-jdbc:3.36.0.2")
 }
 
 tasks {
