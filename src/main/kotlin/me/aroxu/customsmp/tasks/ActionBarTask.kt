@@ -39,6 +39,6 @@ object ActionBarTask {
                     it.sendActionBar(actionBarTextComponent)
                 }
             }
-        }, 0, 5)
+        }, 0, 1)
     }
 }
