@@ -11,10 +11,10 @@ object ActionBarTask {
     // Repeating Task for ActionBar, run every 5 ticks. (4 times per seconds)
     fun registerRepeatingActionBarTask() {
         plugin.server.scheduler.scheduleSyncRepeatingTask(plugin, {
-            plugin.server.onlinePlayers.forEach { player ->
-                if (CustomSMPPlugin.isPlayerDataReady[player.uniqueId]!! && player.gameMode == GameMode.SURVIVAL) {
-                    val isTargetPlayerInWar = CustomSMPPlugin.isInWar[player.uniqueId]
-                    val targetPlayerSurvivalLife = CustomSMPPlugin.survivalLife[player.uniqueId]
+            plugin.server.onlinePlayers.forEach {
+                if (CustomSMPPlugin.isPlayerDataReady[it.uniqueId]!! && it.gameMode == GameMode.SURVIVAL) {
+                    val isTargetPlayerInWar = CustomSMPPlugin.isInWar[it.uniqueId]
+                    val targetPlayerSurvivalLife = CustomSMPPlugin.survivalLife[it.uniqueId]
                     val targetPlayerSurvivalLifeActionBarText = "현재 남은 생존 목숨 : ${targetPlayerSurvivalLife!!}"
 
                     var actionBarTextComponent =
@@ -22,7 +22,7 @@ object ActionBarTask {
                             .color(ColorByLife.getSurvivalColorByLife(targetPlayerSurvivalLife))
                     if (isTargetPlayerInWar!!) {
                         actionBarTextComponent.append(Component.text(" | ").color(ColorByLife.WHITE))
-                        val targetPlayerWarLife = CustomSMPPlugin.warLife[player.uniqueId]
+                        val targetPlayerWarLife = CustomSMPPlugin.warLife[it.uniqueId]
                         val targetPlayerWarLifeActionBarText = "현재 남은 전쟁 목숨 : ${targetPlayerWarLife!!}"
                         actionBarTextComponent =
                             Component.text(targetPlayerSurvivalLifeActionBarText).decorate(TextDecoration.BOLD)
@@ -36,7 +36,7 @@ object ActionBarTask {
                                         .color(ColorByLife.getWarColorByLife(targetPlayerWarLife))
                                 )
                     }
-                    player.sendActionBar(actionBarTextComponent)
+                    it.sendActionBar(actionBarTextComponent)
                 }
             }
         }, 0, 5)

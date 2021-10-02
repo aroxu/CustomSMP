@@ -49,10 +49,8 @@ class CustomSMPPlugin : JavaPlugin() {
         }
 
         // For reload event
-        server.onlinePlayers.forEach { player ->
-            run {
-                handlePlayerData(player)
-            }
+        server.onlinePlayers.forEach {
+            handlePlayerData(it)
         }
         handleTeamsData()
 

@@ -30,16 +30,16 @@ class KillEvent : Listener {
         DataManager.setSurvivalLifeWithUuid(target.uniqueId, survivalLife[target.uniqueId]!!)
         if (survivalLife[target.uniqueId]!! <= 0) {
             target.gameMode = GameMode.SPECTATOR
-            plugin.server.onlinePlayers.forEach { player ->
+            plugin.server.onlinePlayers.forEach {
                 run {
-                    if (player.uniqueId == target.uniqueId) {
-                        player.sendMessage(
+                    if (it.uniqueId == target.uniqueId) {
+                        it.sendMessage(
                             text("당신의 생존 목숨이 전부 소진되어 노예 상태가 되었습니다.")
                                 .color(TextColor.color(0xFF0000)).decorate(TextDecoration.BOLD)
                         )
                     } else {
-                        if (player.isOp) {
-                            player.playSound(
+                        if (it.isOp) {
+                            it.playSound(
                                 sound(
                                     Key.key("block.note_block.pling"),
                                     Sound.Source.AMBIENT,
@@ -48,7 +48,7 @@ class KillEvent : Listener {
                                 )
                             )
                         }
-                        player.sendMessage(
+                        it.sendMessage(
                             text("플레이어 ${target.name} 생존 목숨이 전부 소진되어 노예 상태가 되었습니다.")
                                 .color(TextColor.color(0xFF0000)).decorate(TextDecoration.BOLD)
                         )
