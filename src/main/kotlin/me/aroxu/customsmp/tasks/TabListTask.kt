@@ -9,7 +9,7 @@ import org.bukkit.GameMode
 
 object TabListTask {
     fun registerRepeatingTabListTask() {
-        // Repeating Task for TabBar, run every 5 ticks. (4 times per seconds)
+        // Repeating Task for TabBar, run every 1 ticks. (20 times per seconds)
         plugin.server.scheduler.scheduleSyncRepeatingTask(plugin, {
             plugin.server.onlinePlayers.forEach {
                 if (CustomSMPPlugin.isPlayerDataReady[it.uniqueId]!! && it.gameMode == GameMode.SURVIVAL) {

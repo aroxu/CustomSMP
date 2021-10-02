@@ -8,7 +8,7 @@ import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.GameMode
 
 object ActionBarTask {
-    // Repeating Task for ActionBar, run every 5 ticks. (4 times per seconds)
+    // Repeating Task for ActionBar, run every 1 ticks. (20 times per seconds)
     fun registerRepeatingActionBarTask() {
         plugin.server.scheduler.scheduleSyncRepeatingTask(plugin, {
             plugin.server.onlinePlayers.forEach {
