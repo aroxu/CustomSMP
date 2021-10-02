@@ -59,7 +59,7 @@ object DataManager {
                 exec(
                     """
                     CREATE TABLE "TeamsUuid" (
-                        "uuids"    TEXT NOT NULL UNIQUE,
+                        "uuid"    TEXT NOT NULL UNIQUE,
                         PRIMARY KEY("uuid")
                     );
                     """
