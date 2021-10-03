@@ -86,7 +86,7 @@ object DataManager {
                     SurvivalLife.player eq targetPlayerUuid.toString()
                 }.single().also { result = it[SurvivalLife.life] }
             } catch (e: NoSuchElementException) {
-                plugin.logger.warning("[DataBase] 해당 유저를 찾을 수 없습니다.")
+                plugin.logger.warning("[DataBase] 해당 조건에 만족하는 데이터가 없습니다.")
             }
         }
         return result
@@ -121,7 +121,7 @@ object DataManager {
                     WarLife.player eq targetPlayerUuid.toString()
                 }.single().also { result = it[WarLife.life] }
             } catch (e: NoSuchElementException) {
-                plugin.logger.warning("[DataBase] 해당 유저를 찾을 수 없습니다.")
+                plugin.logger.warning("[DataBase] 해당 조건에 만족하는 데이터가 없습니다.")
             }
         }
         return result
@@ -157,7 +157,7 @@ object DataManager {
                 }.single().also { result = BoolConvert.intToBool(it[IsInWar.isInWar]) }
             }
         } catch (e: NoSuchElementException) {
-            plugin.logger.warning("[DataBase] 해당 유저를 찾을 수 없습니다.")
+            plugin.logger.warning("[DataBase] 해당 조건에 만족하는 데이터가 없습니다.")
         }
         return result
     }
@@ -191,7 +191,7 @@ object DataManager {
                 }.single().also { result = it[TeamsName.name] }
             }
         } catch (e: NoSuchElementException) {
-            plugin.logger.warning("[DataBase] 해당 유저를 찾을 수 없습니다.")
+            plugin.logger.warning("[DataBase] 해당 조건에 만족하는 데이터가 없습니다.")
         }
         return result
     }
@@ -228,7 +228,7 @@ object DataManager {
                 } }
             }
         } catch (e: NoSuchElementException) {
-            plugin.logger.warning("[DataBase] 해당 유저를 찾을 수 없습니다.")
+            plugin.logger.warning("[DataBase] 해당 조건에 만족하는 데이터가 없습니다.")
         }
         return result
     }
@@ -269,7 +269,7 @@ object DataManager {
                 }
             }
         } catch (e: NoSuchElementException) {
-            plugin.logger.warning("[DataBase] 해당 유저를 찾을 수 없습니다.")
+            plugin.logger.warning("[DataBase] 해당 조건에 만족하는 데이터가 없습니다.")
         }
         return result
     }
