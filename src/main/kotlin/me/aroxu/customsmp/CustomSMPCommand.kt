@@ -10,10 +10,10 @@ import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.sound.Sound.sound
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.entity.Player
 import java.util.*
+import kotlin.collections.HashMap
 
 /**
  * @author aroxu
@@ -109,193 +109,190 @@ object CustomSMPCommand {
                     }
                 }
             }
-            then("teamset") {
-                requires { isOp }
-                then("teamName" to string(StringType.QUOTABLE_PHRASE)) {
-                    then("players" to players()) {
-                        executes { arguments ->
-                            val teamName: String by arguments
-                            val players: Collection<Player> by arguments
-//                            if (players.size < 3) {
-//                                sender.playSound(
-//                                    sound(
-//                                        Key.key("block.note_block.bass"),
-//                                        Sound.Source.AMBIENT,
-//                                        10.0f,
-//                                        0.1f
-//                                    )
-//                                )
-//                                sender.sendMessage(text("팀 생성 거절됨: 팀은 최소 2인 부터 구성 가능합니다.")
-//                                    .decorate(TextDecoration.BOLD).color(TextColor.color(0xFFA500)))
-//                                return@executes
-//                            }
-//                            if (players.size > 5) {
-//                                sender.playSound(
-//                                    sound(
-//                                        Key.key("block.note_block.bass"),
-//                                        Sound.Source.AMBIENT,
-//                                        10.0f,
-//                                        0.1f
-//                                    )
-//                                )
-//                                sender.sendMessage(text("팀 생성 거절됨: 팀은 최대 5인 까지 구성 가능합니다.")
-//                                    .decorate(TextDecoration.BOLD).color(TextColor.color(0xFFA500)))
-//                                return@executes
-//                            }
-//                            val playersToText = players.joinToString(separator = ", ") { it.name }
-//                            val team = plugin.server.scoreboardManager.mainScoreboard.registerNewTeam(
-//                                UUID.randomUUID().toString().replace("-", "").substring(0, 15)
-//                            )
-//                            team.displayName(text(teamName))
-//                            team.setAllowFriendlyFire(false)
-//                            players.forEach { target ->
-//                                run {
-//                                    plugin.server.scoreboardManager.mainScoreboard.getTeam(teamName)
-//                                        ?.addEntry(target.uniqueId.toString())
-//                                    target.sendMessage("당신은 [${teamName}] 팀에 추가되셨습니다.")
-//                                }
-//                            }
-//                            sender.sendMessage(text("팀 [${teamName}]을(를) 만들고 다음 플레이어(들)를(을) 해당 팀에 추가하였습니다:\n$playersToText"))
+            then("team") {
+                then("create") {
+                    requires { isOp }
+                    then("teamName" to string(StringType.QUOTABLE_PHRASE)) {
+                        executes {
+                            val teamName: String by it
+                            if (teamName.length < 2 || teamName.length > 8) {
+                                return@executes sender.sendMessage(text("팀 이름은 최소 2글자 최대 8글자 입니다."))
+                            }
+                            if (CustomSMPPlugin.teamsName.values.contains(teamName.trim())) {
+                                return@executes sender.sendMessage(text("해당 팀 이름은 이미 사용중인 이름입니다."))
+                            }
+                            val teamUuid = UUID.randomUUID()
+                            DataManager.addToTeamUuids(teamUuid)
+                            DataManager.setTeamNameWithUuid(teamUuid, teamName)
+                            sender.sendMessage(text("팀 [${teamName}]이 생성되었습니다. '/smp team addPlayer $teamName nickname' 명령어를 이용해서 팀원을 추가하세요."))
                         }
                     }
                 }
-            }
-            then("teamadd") {
-                requires { isOp }
-                then("teamName" to string(StringType.QUOTABLE_PHRASE)) {
-                    then("players" to players()) {
-                        executes { arguments ->
-                            val teamName: String by arguments
-                            val players: Collection<Player> by arguments
-                            val playersToText = players.joinToString(separator = ", ") { it.name }
-//                            plugin.server.scoreboardManager.mainScoreboard.teams.forEach { team ->
-//                                run {
-//                                    if (team.displayName() == text(teamName)) {
-//                                        if (team.entries.size + players.size > 5) {
-//                                            sender.playSound(
-//                                                sound(
-//                                                    Key.key("block.note_block.bass"),
-//                                                    Sound.Source.AMBIENT,
-//                                                    10.0f,
-//                                                    0.1f
-//                                                )
-//                                            )
-//                                            return@executes sender.sendMessage(
-//                                                text("팀원 추가 거절됨: 팀은 최대 5인 까지 구성 가능합니다.")
-//                                                    .decorate(TextDecoration.BOLD).color(TextColor.color(0xFFA500))
-//                                            )
-//                                        }
-//                                        players.forEach { target ->
-//                                            run {
-//                                                if (team.entries.contains(target.uniqueId.toString())) {
-//                                                    sender.playSound(
-//                                                        sound(
-//                                                            Key.key("block.note_block.bass"),
-//                                                            Sound.Source.AMBIENT,
-//                                                            10.0f,
-//                                                            0.1f
-//                                                        )
-//                                                    )
-//                                                    return@executes sender.sendMessage(
-//                                                        text("팀원 추가 거절됨: ${target.name}은 이미 해당 팀의 팀원 입니다.")
-//                                                            .decorate(TextDecoration.BOLD)
-//                                                            .color(TextColor.color(0xFFA500))
-//                                                    )
-//                                                }
-//                                            }
-//                                        }
-//                                        players.forEach { target ->
-//                                            run {
-//                                                if (target.scoreboard.teams.size < 1) {
-//                                                    sender.playSound(
-//                                                        sound(
-//                                                            Key.key("block.note_block.bass"),
-//                                                            Sound.Source.AMBIENT,
-//                                                            10.0f,
-//                                                            0.1f
-//                                                        )
-//                                                    )
-//                                                    return@executes sender.sendMessage(
-//                                                        text("팀원 추가 거절됨: ${target.name}은 이미 다른 팀의 팀원 입니다.")
-//                                                            .decorate(TextDecoration.BOLD)
-//                                                            .color(TextColor.color(0xFFA500))
-//                                                    )
-//                                                }
-//                                            }
-//                                        }
-//                                        players.forEach { target ->
-//                                            run {
-//                                                team.addEntry(target.uniqueId.toString())
-//                                                sender.playSound(
-//                                                    sound(
-//                                                        Key.key("block.anvil.use"),
-//                                                        Sound.Source.AMBIENT,
-//                                                        10.0f,
-//                                                        2.0f
-//                                                    )
-//                                                )
-//                                                target.sendMessage("당신은 [${teamName}] 팀에 추가되셨습니다.")
-//                                                return@executes sender.sendMessage(text("팀 [${teamName}]에 다음 플레이어(들)를(을) 추가하였습니다:\n$playersToText"))
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            sender.playSound(
-//                                sound(
-//                                    Key.key("block.note_block.bass"),
-//                                    Sound.Source.AMBIENT,
-//                                    10.0f,
-//                                    0.1f
-//                                )
-//                            )
-//                            sender.sendMessage(
-//                                text("팀원 추가 거절됨: 해당 팀을 찾을 수 없습니다.")
-//                                    .decorate(TextDecoration.BOLD).color(TextColor.color(0xFFA500))
-//                            )
+                then("addPlayer") {
+                    requires { isOp }
+                    then("teamName" to string(StringType.QUOTABLE_PHRASE)) {
+                        then("player" to player()) {
+                            executes { arguments ->
+                                val teamName: String by arguments
+                                val player: Player by arguments
+                                println(CustomSMPPlugin.isInTeam[player.uniqueId]!!)
+                                if (!CustomSMPPlugin.teamsName.values.contains(teamName)) {
+                                    return@executes sender.sendMessage(text("일치하는 팀 이름이 없습니다."))
+                                }
+                                val teamUuid = CustomSMPPlugin.teamsName.filterValues { it == teamName }.keys.first()
+                                if (CustomSMPPlugin.isInTeam[player.uniqueId]!!) {
+                                    return@executes sender.sendMessage(text("플레이어 ${player.name}님은 이미 팀에 할당되어 있습니다."))
+                                } else {
+                                    if (CustomSMPPlugin.teamsMember[teamUuid] == null || CustomSMPPlugin.teamsMember[teamUuid]!!.isEmpty()) {
+                                        DataManager.setTeamMembersWithUuid(teamUuid, listOf(player.uniqueId))
+                                    } else {
+                                        DataManager.setTeamMembersWithUuid(
+                                            teamUuid,
+                                            CustomSMPPlugin.teamsMember[teamUuid]!!.plus(player.uniqueId)
+                                        )
+                                    }
+                                    DataManager.setIsInTeamWithUuid(player.uniqueId, true)
+                                    DataManager.setPlayerTeamWithUuid(player.uniqueId, teamUuid)
+                                    sender.sendMessage(text("플레이어 ${player.name}님이 [${teamName}] 팀에 할당되었습니다."))
+                                    player.playSound(
+                                        sound(
+                                            Key.key("block.note_block.pling"),
+                                            Sound.Source.AMBIENT,
+                                            10.0f,
+                                            2.0f
+                                        )
+                                    )
+                                    player.sendMessage(text("당신은 [${teamName}] 팀에 할당되었습니다."))
+                                }
+                            }
                         }
                     }
                 }
-            }
-            then("teamrm") {
-                requires { isOp }
-                executes {
+                then("removePlayer") {
+                    requires { isOp }
+                    then("teamName" to string(StringType.QUOTABLE_PHRASE)) {
+                        then("player" to player()) {
+                            executes { arguments ->
+                                val teamName: String by arguments
+                                val player: Player by arguments
+                                if (!CustomSMPPlugin.teamsName.values.contains(teamName)) {
+                                    return@executes sender.sendMessage(text("일치하는 팀 이름이 없습니다."))
+                                }
+                                val teamUuid = CustomSMPPlugin.teamsName.filterValues { it == teamName }.keys.first()
+                                if (
+                                    CustomSMPPlugin.teamsMember[teamUuid] == null
+                                    || CustomSMPPlugin.teamsMember[teamUuid]!!.isEmpty()
+                                ) {
+                                    return@executes sender.sendMessage(text("해당 팀은 구성 인원이 없습니다."))
+                                } else if (!CustomSMPPlugin.teamsMember[teamUuid]!!.contains(player.uniqueId)
+                                ) {
+                                    return@executes sender.sendMessage(text("플레이어 ${player.name}님은 [${teamName}] 팀에 없습니다."))
+                                } else {
+                                    DataManager.setTeamMembersWithUuid(
+                                        teamUuid,
+                                        CustomSMPPlugin.teamsMember[teamUuid]!!.minus(player.uniqueId)
+                                    )
+                                    DataManager.setIsInTeamWithUuid(player.uniqueId, false)
 
+                                    sender.sendMessage(text("플레이어 ${player.name}님이 [${teamName}] 팀에서 제거되었습니다."))
+                                    player.playSound(
+                                        sound(
+                                            Key.key("block.note_block.pling"),
+                                            Sound.Source.AMBIENT,
+                                            10.0f,
+                                            2.0f
+                                        )
+                                    )
+                                    player.sendMessage(text("당신은 [${teamName}] 팀에서 제거되었습니다."))
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-            then("teamdel") {
-                requires { isOp }
-                then("teamName" to string(StringType.QUOTABLE_PHRASE)) {
+                then("delete") {
+                    requires { isOp }
+                    then("teamName" to string(StringType.QUOTABLE_PHRASE)) {
+                        executes {
+                            val teamName: String by it
+                            if (!CustomSMPPlugin.teamsName.values.contains(teamName)) {
+                                return@executes sender.sendMessage(text("일치하는 팀 이름이 없습니다."))
+                            }
+                            val teamUuid =
+                                CustomSMPPlugin.teamsName.filterValues { team -> team == teamName }.keys.first()
+                            CustomSMPPlugin.teamsMember[teamUuid]!!.forEach { member ->
+                                DataManager.setIsInTeamWithUuid(
+                                    member,
+                                    false
+                                )
+                            }
+                            DataManager.removeTeamWithUuid(teamUuid)
+                            sender.playSound(
+                                sound(
+                                    Key.key("block.note_block.pling"),
+                                    Sound.Source.AMBIENT,
+                                    10.0f,
+                                    2.0f
+                                )
+                            )
+                            sender.sendMessage(text("[${teamName}] 팀이 제거되었습니다."))
+                        }
+                    }
+                }
+                then("list") {
+                    requires { isOp }
                     executes {
-                        val teamName: String by it
-//                        plugin.server.scoreboardManager.mainScoreboard.teams.forEach { team ->
-//                            run {
-//                                if (team.displayName() == text(teamName)) {
-//                                    team.unregister()
-//                                    sender.playSound(
-//                                        sound(
-//                                            Key.key("block.anvil.destroy"),
-//                                            Sound.Source.AMBIENT,
-//                                            10.0f,
-//                                            1.0f
-//                                        )
-//                                    )
-//                                    return@executes sender.sendMessage(text("팀 [${teamName}]을 제거하였습니다."))
-//                                }
-//                            }
-//                        }
-//                        sender.playSound(
-//                            sound(
-//                                Key.key("block.note_block.bass"),
-//                                Sound.Source.AMBIENT,
-//                                10.0f,
-//                                0.1f
-//                            )
-//                        )
-//                        sender.sendMessage(
-//                            text("팀 삭제 거절됨: 해당 팀을 찾을 수 없습니다.")
-//                                .decorate(TextDecoration.BOLD).color(TextColor.color(0xFFA500))
-//                        )
+                        var teams = listOf<HashMap<String, String>>()
+                        CustomSMPPlugin.teamsUuid.forEach { team ->
+                            run {
+                                val tempMap = HashMap<String, String>()
+                                var tempTeamMembers: String = ""
+                                if (CustomSMPPlugin.teamsName[team] == null) {
+                                    return@forEach
+                                }
+                                tempMap["name"] = CustomSMPPlugin.teamsName[team]!!
+                                if (CustomSMPPlugin.teamsMember[team] == null || CustomSMPPlugin.teamsMember[team]!!.isEmpty()) {
+                                    tempTeamMembers = "없음"
+                                } else {
+                                    var playerList: List<String> = emptyList()
+                                    CustomSMPPlugin.teamsMember[team]!!.forEach { player ->
+                                        run {
+                                            playerList = playerList.plus(plugin.server.getPlayer(player)!!.name)
+                                        }
+                                    }
+                                    tempTeamMembers = playerList.joinToString(", ")
+                                }
+                                tempMap["members"] = tempTeamMembers
+                                teams = teams.plus(tempMap)
+                            }
+                        }
+                        if (teams.isEmpty()) {
+                            return@executes sender.sendMessage(text("존재하는 팀이 없습니다."))
+                        }
+                        var resultText = text("")
+                        teams.forEach { team ->
+                            run {
+                                resultText = resultText.append(
+                                    text("팀 이름: ").append(
+                                        text("${team["name"]!!}\n").decorate(TextDecoration.BOLD)
+                                    )
+                                )
+                                resultText = resultText.append(
+                                    text("팀 멤버: ").append(
+                                        text("${team["members"]!!}\n").decorate(TextDecoration.BOLD)
+                                    )
+                                )
+                                resultText = resultText.append(text("\n"))
+                            }
+                        }
+                        resultText =
+                            resultText.append(
+                                text("총 ").append(
+                                    text("${teams.size}개").decorate(TextDecoration.BOLD)
+                                ).append(
+                                    text("의 팀이 있습니다.")
+                                )
+                            )
+                        sender.sendMessage(resultText)
                     }
                 }
             }

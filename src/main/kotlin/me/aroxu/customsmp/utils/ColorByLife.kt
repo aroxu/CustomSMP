@@ -7,6 +7,7 @@ object ColorByLife {
     val CYAN = TextColor { 0x00FFFF }
     val LIME = TextColor { 0x00FF00 }
     val YELLOW = TextColor { 0xFFFF00 }
+    val ORANGE = TextColor { 0xFFA500 }
     val RED = TextColor { 0xFF0000 }
 
     fun getSurvivalColorByLife(life: Int): TextColor {
@@ -32,13 +33,13 @@ object ColorByLife {
         var color = RED
         when {
             life > 3 -> {
-                color = CYAN
+                color = YELLOW
             }
             life > 2 -> {
-                color = LIME
+                color = ORANGE
             }
             life > 1 -> {
-                color = YELLOW
+                color = ORANGE
             }
             life > 0 -> {
                 color = RED

@@ -6,8 +6,8 @@ import me.aroxu.customsmp.database.DataManager
 import me.aroxu.customsmp.events.EventInitializer
 import me.aroxu.customsmp.handler.DataHandler.handlePlayerData
 import me.aroxu.customsmp.handler.DataHandler.handleTeamsData
-import me.aroxu.customsmp.tasks.ActionBarTask
-import me.aroxu.customsmp.tasks.TabListTask
+import me.aroxu.customsmp.tasks.TabListPlayerLifeInfoTask
+import me.aroxu.customsmp.tasks.TabListPlayerTeamAndKillInfoTask
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.util.*
@@ -24,6 +24,8 @@ class CustomSMPPlugin : JavaPlugin() {
         var survivalLife:HashMap<UUID, Int> = HashMap()
         var warLife:HashMap<UUID, Int> = HashMap()
         var isInWar:HashMap<UUID, Boolean> = HashMap()
+        var isInTeam:HashMap<UUID, Boolean> = HashMap()
+        var playerTeam:HashMap<UUID, UUID> = HashMap()
         var isPlayerDataReady:HashMap<UUID, Boolean> = HashMap()
         var teamsName:HashMap<UUID, String> = HashMap()
         var teamsMember: HashMap<UUID, List<UUID>> = HashMap()
@@ -53,7 +55,7 @@ class CustomSMPPlugin : JavaPlugin() {
         }
         handleTeamsData()
 
-        ActionBarTask.registerRepeatingActionBarTask()
-        TabListTask.registerRepeatingTabListTask()
+        TabListPlayerLifeInfoTask.registerRepeatingTabListPlayerLifeInfoTask()
+        TabListPlayerTeamAndKillInfoTask.registerRepeatingTabListPlayerTeamAndKillInfoTask()
     }
 }
