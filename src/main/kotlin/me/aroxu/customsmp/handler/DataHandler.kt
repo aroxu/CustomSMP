@@ -45,17 +45,31 @@ object DataHandler {
         val allTeamsUuid = DataManager.getAllTeamUuids()
         val allTeamsName: HashMap<UUID, String> = HashMap()
         val allTeamsMember: HashMap<UUID, List<UUID>> = HashMap()
+        val allRegionsName = DataManager.getAllRegionNames()
+        val allTeamsRegion: HashMap<UUID, List<String>> = HashMap()
+        val allRegions: HashMap<String, List<Double>> = HashMap()
 
         allTeamsUuid.forEach {
             allTeamsName[it] = DataManager.getTeamNameWithUuid(it)
             allTeamsMember[it] = DataManager.getTeamMembersWithUuid(it)
+            allTeamsRegion[it] = DataManager.getTeamRegionsNameWithUuid(it)
+        }
+
+        allRegionsName.forEach {
+            allRegions[it] = DataManager.getRegionPosDataWithName(it)
         }
 
         CustomSMPPlugin.teamsUuid = allTeamsUuid
         println("Loaded Team UUID List: ${CustomSMPPlugin.teamsUuid}")
         CustomSMPPlugin.teamsName = allTeamsName
-        println("Loaded Team Name List: ${CustomSMPPlugin.teamsName}")
+        println("Loaded Team Name Map: ${CustomSMPPlugin.teamsName}")
         CustomSMPPlugin.teamsMember = allTeamsMember
-        println("Loaded Team Member List: ${CustomSMPPlugin.teamsMember}")
+        println("Loaded Team Member Map: ${CustomSMPPlugin.teamsMember}")
+        CustomSMPPlugin.teamsRegion = allTeamsRegion
+        println("Loaded Team Region Map: ${CustomSMPPlugin.teamsRegion}")
+        CustomSMPPlugin.regionsName = allRegionsName
+        println("Loaded Regions Name List: ${CustomSMPPlugin.regionsName}")
+        CustomSMPPlugin.regionsPos = allRegions
+        println("Loaded Regions Pos Map: ${CustomSMPPlugin.regionsPos}")
     }
 }

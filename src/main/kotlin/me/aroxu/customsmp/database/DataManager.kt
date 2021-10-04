@@ -3,6 +3,8 @@ package me.aroxu.customsmp.database
 import me.aroxu.customsmp.CustomSMPPlugin
 import me.aroxu.customsmp.CustomSMPPlugin.Companion.plugin
 import me.aroxu.customsmp.database.objects.*
+import me.aroxu.customsmp.database.objects.RegionsName.name
+import me.aroxu.customsmp.database.objects.TeamsRegion.region
 import me.aroxu.customsmp.database.objects.TeamsUuid.uuid
 import me.aroxu.customsmp.utils.BoolConvert
 import org.jetbrains.exposed.sql.*
@@ -91,6 +93,32 @@ object DataManager {
                     );
                     """
                 )
+                exec(
+                    """
+                    CREATE TABLE "TeamsRegion" (
+                        "uuid"    TEXT NOT NULL UNIQUE,
+                        "region"    TEXT NOT NULL UNIQUE,
+                        PRIMARY KEY("uuid")
+                    );
+                    """
+                )
+                exec(
+                    """
+                    CREATE TABLE "RegionsPos" (
+                        "name"    TEXT NOT NULL UNIQUE,
+                        "pos"    TEXT NOT NULL,
+                        PRIMARY KEY("name")
+                    );
+                    """
+                )
+                exec(
+                    """
+                    CREATE TABLE "RegionsName" (
+                        "name"    TEXT NOT NULL UNIQUE,
+                        PRIMARY KEY("name")
+                    );
+                    """
+                )
             }
         }
     }
@@ -151,7 +179,7 @@ object DataManager {
                 WarLife.select {
                     WarLife.player eq targetPlayerUuid.toString()
                 }.single()
-                WarLife.update({WarLife.player eq targetPlayerUuid.toString()}) {
+                WarLife.update({ WarLife.player eq targetPlayerUuid.toString() }) {
                     it[life] = targetLife
                 }
             } catch (e: NoSuchElementException) {
@@ -186,7 +214,7 @@ object DataManager {
                 IsInWar.select {
                     IsInWar.player eq targetPlayerUuid.toString()
                 }.single()
-                IsInWar.update({IsInWar.player eq targetPlayerUuid.toString()}) {
+                IsInWar.update({ IsInWar.player eq targetPlayerUuid.toString() }) {
                     it[isInWar] = BoolConvert.boolToInt(isTargetPlayerInWar)
                 }
             } catch (e: NoSuchElementException) {
@@ -202,7 +230,7 @@ object DataManager {
 
     // Checks is target Player is in War. If there is no data with target player, returns false
     fun getIsInTeamWithUuid(targetPlayerUuid: UUID): Boolean? {
-        var result:Boolean? = null
+        var result: Boolean? = null
         try {
             transaction {
                 IsInTeam.select {
@@ -221,7 +249,7 @@ object DataManager {
                 IsInTeam.select {
                     IsInTeam.player eq targetPlayerUuid.toString()
                 }.single()
-                IsInTeam.update({IsInTeam.player eq targetPlayerUuid.toString()}) {
+                IsInTeam.update({ IsInTeam.player eq targetPlayerUuid.toString() }) {
                     it[isInTeam] = BoolConvert.boolToInt(isTargetPlayerInTeam)
                 }
             } catch (e: NoSuchElementException) {
@@ -293,7 +321,7 @@ object DataManager {
                 TeamsName.select {
                     TeamsName.uuid eq targetTeamUuid.toString()
                 }.single()
-                TeamsName.update({TeamsName.uuid eq targetTeamUuid.toString()}) {
+                TeamsName.update({ TeamsName.uuid eq targetTeamUuid.toString() }) {
                     it[name] = targetTeamName
                 }
             } catch (e: NoSuchElementException) {
@@ -315,12 +343,13 @@ object DataManager {
                 TeamsMember.select {
                     TeamsMember.uuid eq targetTeamUuid.toString()
                 }.single().also { query ->
-                    query[TeamsMember.members].split(", ").forEach {
-                        if (it.trim() == "") {
-                            return@transaction
-                        }
+                    if (query[TeamsMember.members] == "") {
+                        return@transaction
+                    }
+                    query[TeamsMember.members].split("|").forEach {
                         result = result.plus(UUID.fromString(it))
-                } }
+                    }
+                }
             }
         } catch (e: NoSuchElementException) {
             plugin.logger.warning("[DataBase] 해당 조건에 만족하는 데이터가 없습니다.")
@@ -334,17 +363,139 @@ object DataManager {
                 TeamsMember.select {
                     TeamsMember.uuid eq targetTeamUuid.toString()
                 }.single()
-                TeamsMember.update({TeamsMember.uuid eq targetTeamUuid.toString()}) {
-                    it[members] = targetTeamMembers.joinToString(", ")
+                TeamsMember.update({ TeamsMember.uuid eq targetTeamUuid.toString() }) {
+                    it[members] = targetTeamMembers.joinToString("|")
                 }
             } catch (e: NoSuchElementException) {
                 TeamsMember.insert {
                     it[uuid] = targetTeamUuid.toString()
-                    it[members] = targetTeamMembers.joinToString(", ")
+                    it[members] = targetTeamMembers.joinToString("|")
                 }
             }
         }
         CustomSMPPlugin.teamsMember[targetTeamUuid] = targetTeamMembers
+    }
+
+
+    // Get Team RegionsPos name with Team's UUID. returns String
+    fun getTeamRegionsNameWithUuid(targetTeamUuid: UUID): List<String> {
+        var result = emptyList<String>()
+        try {
+            transaction {
+                TeamsRegion.select {
+                    TeamsRegion.uuid eq targetTeamUuid.toString()
+                }.single().also {
+                    it[TeamsRegion.region].split("|").forEach { regionName ->
+                        result = result.plus(regionName)
+                    }
+                }
+            }
+        } catch (e: NoSuchElementException) {
+            plugin.logger.warning("[DataBase] 해당 조건에 만족하는 데이터가 없습니다.")
+        }
+        return result
+    }
+
+    fun setTeamRegionsNameWithUuid(targetTeamUuid: UUID, targetTeamRegion: List<String>) {
+        transaction {
+            try {
+                TeamsRegion.select {
+                    TeamsRegion.uuid eq targetTeamUuid.toString()
+                }.single()
+                TeamsRegion.update({ TeamsRegion.uuid eq targetTeamUuid.toString() }) {
+                    it[region] = targetTeamRegion.joinToString("|")
+                }
+            } catch (e: NoSuchElementException) {
+                TeamsRegion.insert {
+                    it[uuid] = targetTeamUuid.toString()
+                    it[region] = targetTeamRegion.joinToString("|")
+                }
+            }
+        }
+        CustomSMPPlugin.teamsRegion[targetTeamUuid] = targetTeamRegion
+    }
+
+
+    // Get Team RegionsPos's Pos data with RegionsPos's name. returns List<Int>
+    fun getRegionPosDataWithName(targetRegionName: String): List<Double> {
+        var result = emptyList<Double>()
+        try {
+            transaction {
+                RegionsPos.select {
+                    RegionsPos.name eq targetRegionName
+                }.single().also {
+                    it[RegionsPos.pos].split("|").forEach { pos ->
+                        result = result.plus(pos.toDouble())
+                    }
+                }
+            }
+        } catch (e: NoSuchElementException) {
+            plugin.logger.warning("[DataBase] 해당 조건에 만족하는 데이터가 없습니다.")
+        }
+        return result
+    }
+
+    fun setRegionPosDataWithName(targetRegionName: String, targetRegionPos: List<Double>) {
+        transaction {
+            try {
+                RegionsPos.select {
+                    RegionsPos.name eq targetRegionName
+                }.single()
+                RegionsPos.update({ RegionsPos.name eq targetRegionName }) {
+                    it[pos] = targetRegionPos.joinToString("|")
+                }
+            } catch (e: NoSuchElementException) {
+                RegionsPos.insert {
+                    it[name] = targetRegionName
+                    it[pos] = targetRegionPos.joinToString("|")
+                }
+            }
+        }
+        CustomSMPPlugin.regionsPos[targetRegionName] = targetRegionPos
+    }
+
+
+    // Get List of all Region's name. returns List<String>
+    fun getAllRegionNames(): List<String> {
+        var result = emptyList<String>()
+        try {
+            transaction {
+                RegionsName.selectAll().also { queries ->
+                    run {
+                        queries.forEach { query ->
+                            run {
+                                result = result.plus(query[name].split("|"))
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: NoSuchElementException) {
+            plugin.logger.warning("[DataBase] 해당 조건에 만족하는 데이터가 없습니다.")
+        }
+        return result
+    }
+
+    fun addToRegionNames(targetRegionName: String) {
+        transaction {
+            RegionsName.insert {
+                it[name] = targetRegionName
+            }
+        }
+        CustomSMPPlugin.regionsName = CustomSMPPlugin.regionsName.plus(targetRegionName)
+    }
+
+    fun removeRegionWithName(targetRegionName: String) {
+        transaction {
+            RegionsName.deleteWhere {
+                RegionsName.name eq targetRegionName
+            }
+            RegionsPos.deleteWhere {
+                RegionsPos.name eq targetRegionName
+            }
+        }
+        CustomSMPPlugin.regionsName = CustomSMPPlugin.regionsName.minus(targetRegionName)
+        CustomSMPPlugin.regionsPos.remove(targetRegionName)
     }
 
 

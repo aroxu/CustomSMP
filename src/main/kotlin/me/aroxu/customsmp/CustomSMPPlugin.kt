@@ -29,7 +29,10 @@ class CustomSMPPlugin : JavaPlugin() {
         var isPlayerDataReady:HashMap<UUID, Boolean> = HashMap()
         var teamsName:HashMap<UUID, String> = HashMap()
         var teamsMember: HashMap<UUID, List<UUID>> = HashMap()
+        var teamsRegion:HashMap<UUID, List<String>> = HashMap()
         var teamsUuid: List<UUID> = emptyList()
+        var regionsPos: HashMap<String, List<Double>> = HashMap()
+        var regionsName: List<String> = emptyList()
     }
 
     override fun onEnable() {
