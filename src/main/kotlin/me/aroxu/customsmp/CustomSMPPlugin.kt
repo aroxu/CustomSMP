@@ -25,6 +25,7 @@ class CustomSMPPlugin : JavaPlugin() {
         var warLife:HashMap<UUID, Int> = HashMap()
         var isInWar:HashMap<UUID, Boolean> = HashMap()
         var isInTeam:HashMap<UUID, Boolean> = HashMap()
+        var warTeams: HashMap<UUID, List<UUID>> = HashMap()
         var playerTeam:HashMap<UUID, UUID> = HashMap()
         var isPlayerDataReady:HashMap<UUID, Boolean> = HashMap()
         var teamsName:HashMap<UUID, String> = HashMap()

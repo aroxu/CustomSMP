@@ -24,7 +24,7 @@ object CustomSMPCommand {
     fun register(builder: LiteralNode) {
         builder.apply {
             then("about") { executes { sender.sendMessage("CustomSMP by aroxu.") } }
-            then("lifeset") {
+            then("lifeSet") {
                 requires { isOp || isConsole }
                 then("survival") {
                     then("player" to player()) {
@@ -51,7 +51,7 @@ object CustomSMPCommand {
                     }
                 }
             }
-            then("maxhealth") {
+            then("maxHealth") {
                 requires { isOp || isConsole }
                 then("player" to player()) {
                     then("maxHealth" to double(0.0, Double.MAX_VALUE)) {
@@ -136,8 +136,8 @@ object CustomSMPCommand {
                                 val teamUuid = CustomSMPPlugin.teamsName.filterValues { it == teamName }.keys.first()
                                 if (CustomSMPPlugin.isInTeam[player.uniqueId]!!) {
                                     return@executes sender.sendMessage(text("플레이어 ${player.name}님은 이미 팀에 할당되어 있습니다."))
-                                } else if ((CustomSMPPlugin.teamsMember[teamUuid] != null
-                                            || CustomSMPPlugin.teamsMember[teamUuid]!!.isNotEmpty())
+                                } else if (!(CustomSMPPlugin.teamsMember[teamUuid] == null
+                                            || CustomSMPPlugin.teamsMember[teamUuid]!!.isEmpty())
                                     && CustomSMPPlugin.teamsMember[teamUuid]!!.size >= 5
                                 ) {
                                     return@executes sender.sendMessage(text("[${teamName}] 탐은 이미 최대 인원수에 도달하였습니다."))
@@ -239,11 +239,13 @@ object CustomSMPCommand {
                             }
                             val teamUuid =
                                 CustomSMPPlugin.teamsName.filterValues { team -> team == teamName }.keys.first()
-                            CustomSMPPlugin.teamsMember[teamUuid]!!.forEach { member ->
-                                DataManager.setIsInTeamWithUuid(
-                                    member,
-                                    false
-                                )
+                            if (!(CustomSMPPlugin.teamsMember[teamUuid] == null) || CustomSMPPlugin.teamsMember[teamUuid]!!.isNotEmpty()) {
+                                CustomSMPPlugin.teamsMember[teamUuid]!!.forEach { member ->
+                                    DataManager.setIsInTeamWithUuid(
+                                        member,
+                                        false
+                                    )
+                                }
                             }
                             DataManager.removeTeamWithUuid(teamUuid)
                             sender.playSound(
@@ -269,7 +271,7 @@ object CustomSMPCommand {
                                     return@forEach
                                 }
                                 tempMap["name"] = CustomSMPPlugin.teamsName[team]!!
-                                if (CustomSMPPlugin.teamsMember[team]!!.isEmpty()) {
+                                if (CustomSMPPlugin.teamsMember[team] == null || CustomSMPPlugin.teamsMember[team]!!.isEmpty()) {
                                     tempTeamMembers = "없음"
                                 } else {
                                     var playerList: List<String> = emptyList()
@@ -331,7 +333,7 @@ object CustomSMPCommand {
                                     )
                                 )
                                 var inRegionTeamNames = ""
-                                CustomSMPPlugin.teamsUuid.forEach TeamsUuidForEach@ { team ->
+                                CustomSMPPlugin.teamsUuid.forEach TeamsUuidForEach@{ team ->
                                     run {
                                         if (CustomSMPPlugin.teamsRegion[team] == null) {
                                             return@TeamsUuidForEach
@@ -358,24 +360,13 @@ object CustomSMPCommand {
                                 regionsTextComponent = regionsTextComponent.append(
                                     text(
                                         "시작 구역 X: ${
-                                            posData[0].toString().removeSuffix(
-                                                posData[0].toString().substring(posData[0].toString().indexOf(".") + 3)
-                                            )
+                                            posData[0].toInt()
                                         }\n시작 구역 Z: ${
-                                            posData[1].toString().removeSuffix(
-                                                posData[1].toString()
-                                                    .substring(posData[1].toString().indexOf(".") + 3)
-                                            )
+                                            posData[1].toInt()
                                         }\n종료 구역 X: ${
-                                            posData[2].toString().removeSuffix(
-                                                posData[2].toString()
-                                                    .substring(posData[2].toString().indexOf(".") + 3)
-                                            )
+                                            posData[2].toInt()
                                         }\n종료 구역 Z: ${
-                                            posData[3].toString().removeSuffix(
-                                                posData[3].toString()
-                                                    .substring(posData[3].toString().indexOf(".") + 3)
-                                            )
+                                            posData[3].toInt()
                                         }\n\n"
                                     ).decorate(TextDecoration.BOLD)
                                 )
@@ -412,21 +403,13 @@ object CustomSMPCommand {
                                     sender.sendMessage(
                                         text(
                                             "시작 좌표를 X: ${
-                                                pos1.x.toString().removeSuffix(
-                                                    pos1.x.toString().substring(pos1.x.toString().indexOf(".") + 3)
-                                                )
+                                                pos1.x.toInt()
                                             } Z: ${
-                                                pos1.z.toString().removeSuffix(
-                                                    pos1.z.toString().substring(pos1.z.toString().indexOf(".") + 3)
-                                                )
+                                                pos1.z.toInt()
                                             }로 하고 종료 좌표를 X: ${
-                                                pos2.x.toString().removeSuffix(
-                                                    pos2.x.toString().substring(pos2.x.toString().indexOf(".") + 3)
-                                                )
+                                                pos2.x.toInt()
                                             } Z: ${
-                                                pos2.z.toString().removeSuffix(
-                                                    pos2.z.toString().substring(pos2.z.toString().indexOf(".") + 3)
-                                                )
+                                                pos2.z.toInt()
                                             }로 하는 영역 \"${regionName}\"을(를) 생성하였습니다."
                                         )
                                     )
@@ -469,7 +452,7 @@ object CustomSMPCommand {
                                     return@executes sender.sendMessage(text("일치하는 이름의 영역이 없습니다."))
                                 }
                                 if (!CustomSMPPlugin.teamsName.values.contains(teamName)) {
-                                    return@executes sender.sendMessage(text("일치하는 이름의 영역이 없습니다."))
+                                    return@executes sender.sendMessage(text("일치하는 이름의 팀이 없습니다."))
                                 } else {
                                     val teamUuid =
                                         CustomSMPPlugin.teamsName.filterValues { filteredTeamName -> filteredTeamName == teamName }.keys.first()
@@ -479,10 +462,13 @@ object CustomSMPCommand {
                                         if (CustomSMPPlugin.teamsRegion[teamUuid]!!.contains(regionName)) {
                                             return@executes sender.sendMessage("[${teamName}] 팀은 이미 \"${regionName}\" 영역에 등록되어 있습니다.")
                                         }
-                                        DataManager.setTeamRegionsNameWithUuid(teamUuid, CustomSMPPlugin.teamsRegion[teamUuid]!!.plus(regionName))
+                                        DataManager.setTeamRegionsNameWithUuid(
+                                            teamUuid,
+                                            CustomSMPPlugin.teamsRegion[teamUuid]!!.plus(regionName)
+                                        )
                                     }
+                                    sender.sendMessage(text("[${teamName}] 팀을 \"${regionName}\" 영역에 등록하였습니다."))
                                 }
-                                sender.sendMessage(text("[${teamName}] 팀을 \"${regionName}\" 영역에 등록하였습니다."))
                             }
                         }
                     }
@@ -497,20 +483,23 @@ object CustomSMPCommand {
                                     return@executes sender.sendMessage(text("일치하는 이름의 영역이 없습니다."))
                                 }
                                 if (!CustomSMPPlugin.teamsName.values.contains(teamName)) {
-                                    return@executes sender.sendMessage(text("일치하는 이름의 영역이 없습니다."))
+                                    return@executes sender.sendMessage(text("일치하는 이름의 팀이 없습니다."))
                                 } else {
                                     val teamUuid =
                                         CustomSMPPlugin.teamsName.filterValues { filteredTeamName -> filteredTeamName == teamName }.keys.first()
                                     if (CustomSMPPlugin.teamsRegion[teamUuid] == null || CustomSMPPlugin.teamsRegion[teamUuid]!!.isEmpty()) {
-                                        DataManager.setTeamRegionsNameWithUuid(teamUuid, listOf(regionName))
+                                        return@executes sender.sendMessage("\"${regionName}\" 영역에 아무런 팀도 등록되어 있지 있습니다.")
                                     } else {
                                         if (!CustomSMPPlugin.teamsRegion[teamUuid]!!.contains(regionName)) {
                                             return@executes sender.sendMessage("[${teamName}] 팀은 이미 \"${regionName}\" 영역에 등록되어 있지 있습니다.")
                                         }
-                                        DataManager.setTeamRegionsNameWithUuid(teamUuid, CustomSMPPlugin.teamsRegion[teamUuid]!!.plus(regionName))
+                                        DataManager.setTeamRegionsNameWithUuid(
+                                            teamUuid,
+                                            CustomSMPPlugin.teamsRegion[teamUuid]!!.minus(regionName)
+                                        )
                                     }
+                                    sender.sendMessage(text("[${teamName}] 팀을 \"${regionName}\" 영역에서 제거하였습니다."))
                                 }
-                                sender.sendMessage(text("[${teamName}] 팀을 \"${regionName}\" 영역에서 제거하였습니다."))
                             }
                         }
                     }

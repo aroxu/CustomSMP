@@ -1,5 +1,6 @@
 package me.aroxu.customsmp.events
 
+import me.aroxu.customsmp.CustomSMPPlugin
 import me.aroxu.customsmp.CustomSMPPlugin.Companion.isInWar
 import me.aroxu.customsmp.CustomSMPPlugin.Companion.plugin
 import me.aroxu.customsmp.CustomSMPPlugin.Companion.survivalLife
@@ -12,11 +13,14 @@ import net.kyori.adventure.sound.Sound.sound
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
+import org.bukkit.Bukkit
 import org.bukkit.GameMode
+import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerRespawnEvent
 
 
 class KillEvent : Listener {
@@ -61,7 +65,7 @@ class KillEvent : Listener {
             survivalLife[target.uniqueId] = survivalLife[target.uniqueId]!!.minus(1)
             DataManager.setSurvivalLifeWithUuid(target.uniqueId, survivalLife[target.uniqueId]!!)
             if (survivalLife[target.uniqueId]!! <= 0) {
-                target.gameMode = GameMode.SPECTATOR
+                target.teleport(Location(Bukkit.getWorld("world"), 0.0, 120.0, 0.0))
                 plugin.server.onlinePlayers.forEach {
                     run {
                         if (it.uniqueId == target.uniqueId) {
@@ -87,5 +91,25 @@ class KillEvent : Listener {
                 }
             }
         }
+    }
+    @EventHandler
+    fun onPlayerRespawn(event: PlayerRespawnEvent){
+        val target = event.player
+
+        if (survivalLife[target.uniqueId]!! == 0) {
+            event.respawnLocation = Location(Bukkit.getWorld("world"), 0.0, 120.0, 0.0)
+        }
+        else
+            if(target.bedSpawnLocation == null){
+                val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
+                if(isTargetInTeam!!) {
+                    val targetTeam = CustomSMPPlugin.playerTeam[target.uniqueId]
+                    val targetTeamName = CustomSMPPlugin.teamsName[targetTeam]
+                    val targetRegion = CustomSMPPlugin.regionsPos[targetTeamName]!!
+
+                    val y = target.world.getHighestBlockYAt(targetRegion[0].toInt(), targetRegion[1].toInt()).toDouble()
+                    event.respawnLocation = Location(Bukkit.getWorld("world"), targetRegion[0], y , targetRegion[1])
+                }
+            }
     }
 }
