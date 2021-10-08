@@ -3,6 +3,7 @@ package me.aroxu.customsmp.database
 import me.aroxu.customsmp.CustomSMPPlugin
 import me.aroxu.customsmp.CustomSMPPlugin.Companion.plugin
 import me.aroxu.customsmp.database.objects.*
+import me.aroxu.customsmp.database.objects.InvincibleTeams.team
 import me.aroxu.customsmp.database.objects.RegionsName.name
 import me.aroxu.customsmp.database.objects.TeamsRegion.region
 import me.aroxu.customsmp.database.objects.TeamsUuid.uuid
@@ -97,7 +98,7 @@ object DataManager {
                     """
                     CREATE TABLE "TeamsRegion" (
                         "uuid"    TEXT NOT NULL UNIQUE,
-                        "region"    TEXT NOT NULL UNIQUE,
+                        "region"    TEXT NOT NULL,
                         PRIMARY KEY("uuid")
                     );
                     """
@@ -116,6 +117,14 @@ object DataManager {
                     CREATE TABLE "RegionsName" (
                         "name"    TEXT NOT NULL UNIQUE,
                         PRIMARY KEY("name")
+                    );
+                    """
+                )
+                exec(
+                    """
+                    CREATE TABLE "InvincibleTeams" (
+                        "team"    TEXT NOT NULL UNIQUE,
+                        PRIMARY KEY("team")
                     );
                     """
                 )
@@ -260,7 +269,6 @@ object DataManager {
             }
         }
         CustomSMPPlugin.isInTeam[targetPlayerUuid] = isTargetPlayerInTeam
-        println(CustomSMPPlugin.isInTeam[targetPlayerUuid])
     }
 
 
@@ -296,7 +304,6 @@ object DataManager {
             }
         }
         CustomSMPPlugin.playerTeam[targetPlayerUuid] = targetPlayerTeam
-        println(CustomSMPPlugin.playerTeam[targetPlayerUuid])
     }
 
 
@@ -544,5 +551,45 @@ object DataManager {
         CustomSMPPlugin.teamsName.remove(targetTeamUuid)
         CustomSMPPlugin.teamsMember.remove(targetTeamUuid)
         CustomSMPPlugin.teamsUuid.minus(targetTeamUuid)
+    }
+
+
+    // Get List of all invincible team's UUID. returns List<UUID>
+    fun getAllInvinsibleTeamUuids(): List<UUID> {
+        var result = emptyList<UUID>()
+        try {
+            transaction {
+                InvincibleTeams.selectAll().also { queries ->
+                    run {
+                        queries.forEach { query ->
+                            run {
+                                result = result.plus(UUID.fromString(query[team]))
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: NoSuchElementException) {
+            plugin.logger.warning("[DataBase] 해당 조건에 만족하는 데이터가 없습니다.")
+        }
+        return result
+    }
+
+    fun addToInvincibleTeamUuids(targetTeamUuid: UUID) {
+        transaction {
+            InvincibleTeams.insert {
+                it[team] = targetTeamUuid.toString()
+            }
+        }
+        CustomSMPPlugin.invincibleTeams = CustomSMPPlugin.invincibleTeams.plus(targetTeamUuid)
+    }
+
+    fun removeFromInvincibleTeamUuids(targetTeamUuid: UUID) {
+        transaction {
+            InvincibleTeams.deleteWhere {
+                team eq targetTeamUuid.toString()
+            }
+        }
+        CustomSMPPlugin.invincibleTeams = CustomSMPPlugin.invincibleTeams.minus(targetTeamUuid)
     }
 }

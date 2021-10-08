@@ -11,7 +11,10 @@ import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.sound.Sound.sound
 import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
+import org.bukkit.Bukkit
+import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import java.util.*
 import kotlin.collections.HashMap
@@ -129,7 +132,6 @@ object CustomSMPCommand {
                             executes { arguments ->
                                 val teamName: String by arguments
                                 val player: Player by arguments
-                                println(CustomSMPPlugin.isInTeam[player.uniqueId]!!)
                                 if (!CustomSMPPlugin.teamsName.values.contains(teamName)) {
                                     return@executes sender.sendMessage(text("일치하는 팀 이름이 없습니다."))
                                 }
@@ -266,7 +268,7 @@ object CustomSMPCommand {
                         CustomSMPPlugin.teamsUuid.forEach { team ->
                             run {
                                 val tempMap = HashMap<String, String>()
-                                var tempTeamMembers = ""
+                                val tempTeamMembers: String
                                 if (CustomSMPPlugin.teamsName[team] == null) {
                                     return@forEach
                                 }
@@ -277,7 +279,12 @@ object CustomSMPCommand {
                                     var playerList: List<String> = emptyList()
                                     CustomSMPPlugin.teamsMember[team]!!.forEach { player ->
                                         run {
-                                            playerList = playerList.plus(plugin.server.getPlayer(player)!!.name)
+                                            val playerName: String = if (plugin.server.getPlayer(player) == null) {
+                                                plugin.server.getOfflinePlayer(player).name!!
+                                            } else {
+                                                plugin.server.getPlayer(player)!!.name
+                                            }
+                                            playerList = playerList.plus(playerName)
                                         }
                                     }
                                     tempTeamMembers = playerList.joinToString(", ")
@@ -504,6 +511,283 @@ object CustomSMPCommand {
                         }
                     }
                 }
+            }
+            then("war") {
+                then("request") {
+                    requires { isPlayer }
+                    then("targetTeamName" to string(StringType.QUOTABLE_PHRASE)) {
+                        executes {
+                            val targetTeamName: String by it
+                            val targetTeam =
+                                CustomSMPPlugin.teamsName.filterValues { name -> name == targetTeamName }
+                            val requestTeam =
+                                CustomSMPPlugin.teamsMember.filterValues { members -> members.contains(player.uniqueId) }
+                            var ops = 0
+                            plugin.server.onlinePlayers.forEach { targetPlayer ->
+                                run {
+                                    if (targetPlayer.isOp) {
+                                        ops++
+                                    }
+                                }
+                            }
+                            if (player.gameMode != GameMode.SURVIVAL) {
+                                if (player.gameMode == GameMode.SPECTATOR) {
+                                    return@executes sender.sendMessage("관전자는 해당 명령어를 사용할 수 없습니다.")
+                                }
+                                return@executes sender.sendMessage(text("이 명령어는 게임 참가자만 사용할 수 있습니다."))
+                            }
+                            if (CustomSMPPlugin.playerTeam[player.uniqueId] == null) {
+                                return@executes sender.sendMessage(text("이 명령어를 사용하려면 먼저 팀에 등록이 되어 있어야 합니다."))
+                            }
+                            if (targetTeam.isEmpty()) {
+                                return@executes sender.sendMessage("해당 팀을 찾을 수 없습니다.")
+                            }
+                            if (CustomSMPPlugin.teamsMember[targetTeam.keys.first()] == null || CustomSMPPlugin.teamsMember[targetTeam.keys.first()]!!.isEmpty()) {
+                                return@executes sender.sendMessage("팀 멤버가 없는 팀에 전쟁을 신청할 수 없습니다.")
+                            }
+                            if (targetTeam.keys.first() == requestTeam.keys.first()) {
+                                return@executes sender.sendMessage("나 자신은 영원한 경쟁 상대 입니다.")
+                            }
+                            if (ops < 1) {
+                                return@executes sender.sendMessage("현재 서버에 관리자가 존재하지 않아서 전쟁을 신청할 수 없습니다.")
+                            }
+                            val checkPendingWarExist = CustomSMPPlugin.isWarRequestPending[requestTeam.keys.first()]
+                            if (checkPendingWarExist == null || !CustomSMPPlugin.isWarRequestPending[requestTeam.keys.first()]!!) {
+                                CustomSMPPlugin.isWarRequestPending[requestTeam.keys.first()] = true
+                                CustomSMPPlugin.teamsMember[requestTeam.keys.first()]?.forEach { u ->
+                                    Bukkit.getPlayer(u)?.bedSpawnLocation = player.location
+                                }
+
+                                plugin.server.onlinePlayers.forEach { targetPlayer ->
+                                    run {
+                                        if (targetPlayer.isOp) {
+                                            targetPlayer.playSound(
+                                                sound(
+                                                    Key.key("block.note_block.pling"),
+                                                    Sound.Source.AMBIENT,
+                                                    10.0f,
+                                                    2.0f
+                                                )
+                                            )
+                                            targetPlayer.sendMessage(
+                                                text("\n플레이어 ${player.name}님이 속한 팀 [${CustomSMPPlugin.teamsName[requestTeam.keys.first()]!!}]이 팀[${targetTeamName}]에게 전쟁을 신청했습니다. 관리자들은 상의를 한 뒤 '/smp war start \"${CustomSMPPlugin.teamsName[requestTeam.keys.first()]!!}\" \"${targetTeamName}\"' 명령어를 한번만 입력해주세요.\n")
+                                                    .color(TextColor.color(0xFFA500)).decorate(TextDecoration.BOLD)
+                                            )
+                                        }
+                                    }
+                                }
+                                sender.sendMessage("전쟁 신청이 완료되었습니다.")
+                            } else {
+                                return@executes sender.sendMessage("이미 전쟁을 신청하였습니다. 승인 또는 거절이 될때까지 기다려주세요.")
+                            }
+                        }
+                    }
+                }
+                then("cancel") {
+                    requires { isPlayer }
+                    then("targetTeamName" to string(StringType.QUOTABLE_PHRASE)) {
+                        executes {
+                            val targetTeamName: String by it
+                            val targetTeam =
+                                CustomSMPPlugin.teamsName.filterValues { name -> name == targetTeamName }
+                            val requestTeam =
+                                CustomSMPPlugin.teamsMember.filterValues { members -> members.contains(player.uniqueId) }
+                            var ops = 0
+                            plugin.server.onlinePlayers.forEach { targetPlayer ->
+                                run {
+                                    if (targetPlayer.isOp) {
+                                        ops++
+                                    }
+                                }
+                            }
+                            if (player.gameMode != GameMode.SURVIVAL) {
+                                if (player.gameMode == GameMode.SPECTATOR) {
+                                    return@executes sender.sendMessage("관전자는 해당 명령어를 사용할 수 없습니다.")
+                                }
+                                return@executes sender.sendMessage(text("이 명령어는 게임 참가자만 사용할 수 있습니다."))
+                            }
+                            if (CustomSMPPlugin.playerTeam[player.uniqueId] == null) {
+                                return@executes sender.sendMessage(text("이 명령어를 사용하려면 먼저 팀에 등록이 되어 있어야 합니다."))
+                            }
+                            if (targetTeam.isEmpty()) {
+                                return@executes sender.sendMessage("해당 팀을 찾을 수 없습니다.")
+                            }
+                            if (CustomSMPPlugin.teamsMember[targetTeam.keys.first()] == null || CustomSMPPlugin.teamsMember[targetTeam.keys.first()]!!.isEmpty()) {
+                                return@executes sender.sendMessage("팀 멤버가 없는 팀에 전쟁을 신청할 수 없습니다.")
+                            }
+                            if (targetTeam.keys.first() == requestTeam.keys.first()) {
+                                return@executes sender.sendMessage("나 자신은 영원한 경쟁 상대 입니다.")
+                            }
+                            if (ops < 1) {
+                                return@executes sender.sendMessage("현재 서버에 관리자가 존재하지 않아서 전쟁 신청을 취소할 수 없습니다.")
+                            }
+                            val checkPendingWarExist = CustomSMPPlugin.isWarRequestPending[requestTeam.keys.first()]
+                            if (checkPendingWarExist == null || !CustomSMPPlugin.isWarRequestPending[requestTeam.keys.first()]!!) {
+                                return@executes sender.sendMessage("신청된 전쟁이 없습니다.")
+                            } else {
+                                CustomSMPPlugin.isWarRequestPending[requestTeam.keys.first()] = false
+                                plugin.server.onlinePlayers.forEach { targetPlayer ->
+                                    run {
+                                        if (targetPlayer.isOp) {
+                                            targetPlayer.playSound(
+                                                sound(
+                                                    Key.key("block.note_block.pling"),
+                                                    Sound.Source.AMBIENT,
+                                                    10.0f,
+                                                    2.0f
+                                                )
+                                            )
+                                            targetPlayer.sendMessage(
+                                                text("\n플레이어 ${player.name}님이 속한 팀 [${CustomSMPPlugin.teamsName[requestTeam.keys.first()]!!}]이 팀[${targetTeamName}]에게 신청한 전쟁을 취소했습니다.")
+                                                    .color(TextColor.color(0xFFA500)).decorate(TextDecoration.BOLD)
+                                            )
+                                        }
+                                    }
+                                }
+                                sender.sendMessage("전쟁 신청이 취소되었습니다.")
+                            }
+                        }
+                    }
+                }
+                then("start") {
+                    requires { isOp }
+                    then("attackTeamName" to string(StringType.QUOTABLE_PHRASE)) {
+                        then("defenseTeamName" to string(StringType.QUOTABLE_PHRASE)) {
+                            executes {
+                                val attackTeamName: String by it
+                                val defenseTeamName: String by it
+                                val attackTeam =
+                                    CustomSMPPlugin.teamsName.filterValues { name -> name == attackTeamName }
+                                val defenseTeam =
+                                    CustomSMPPlugin.teamsName.filterValues { name -> name == defenseTeamName }
+                                if (CustomSMPPlugin.warTeams.size > 2) {
+                                    return@executes sender.sendMessage(text("한꺼번에 진행할 수 있는 전쟁의 수를 초과합니다. 한 전쟁이 종료 된 후에 다시 시도해주세요."))
+                                }
+                                if (attackTeam.isEmpty()) {
+                                    return@executes sender.sendMessage("일치하는 공격 팀 이름을 찾을 수 없습니다.")
+                                }
+                                if (defenseTeam.isEmpty()) {
+                                    return@executes sender.sendMessage("일치하는 방어 팀 이름을 찾을 수 없습니다.")
+                                }
+                                if (attackTeam.keys.first() == defenseTeam.keys.first()) {
+                                    return@executes sender.sendMessage("공격팀과 방어팀은 같을 수 없습니다.")
+                                }
+                                var isAttackTeamInWar = false
+                                var isDefenseTeamInWar = false
+                                CustomSMPPlugin.teamsMember[attackTeam.keys.first()]!!.forEach { member ->
+                                    run {
+                                        if (CustomSMPPlugin.isInWar[member] != null) {
+                                            if (CustomSMPPlugin.isInWar[member]!!) {
+                                                isAttackTeamInWar = true
+                                            }
+                                        }
+                                    }
+                                }
+                                CustomSMPPlugin.teamsMember[defenseTeam.keys.first()]!!.forEach { member ->
+                                    run {
+                                        if (CustomSMPPlugin.isInWar[member] != null) {
+                                            if (CustomSMPPlugin.isInWar[member]!!) {
+                                                isDefenseTeamInWar = true
+                                            }
+                                        }
+                                    }
+                                }
+                                if (isAttackTeamInWar || isDefenseTeamInWar) {
+                                    return@executes sender.sendMessage(text("두 팀중 한 팀 이상이 전쟁을 진행중입니다."))
+                                }
+                                CustomSMPPlugin.teamsMember[attackTeam.keys.first()]!!.forEach { member ->
+                                    run {
+                                        plugin.server.getPlayer(member)?.sendMessage(text("10분 뒤 [${defenseTeamName}] 팀과 전쟁이 시작됩니다."))
+                                    }
+                                }
+                                CustomSMPPlugin.teamsMember[defenseTeam.keys.first()]!!.forEach { member ->
+                                    run {
+                                        plugin.server.getPlayer(member)?.sendMessage(text("10분 뒤 [${attackTeamName}] 팀과 전쟁이 시작됩니다."))
+                                    }
+                                }
+                                val pendingWarTask = plugin.server.scheduler.runTaskLater(plugin, Runnable {
+                                    CustomSMPPlugin.warTeams = CustomSMPPlugin.warTeams.plus(
+                                        Pair(
+                                            attackTeam.keys.first(),
+                                            defenseTeam.keys.first()
+                                        )
+                                    )
+                                    CustomSMPPlugin.teamsMember[attackTeam.keys.first()]!!.forEach { member ->
+                                        run {
+                                            DataManager.setWarLifeWithUuid(member, 5)
+                                            DataManager.setIsInWarWithUuid(member, true)
+                                        }
+                                    }
+                                    CustomSMPPlugin.teamsMember[defenseTeam.keys.first()]!!.forEach { member ->
+                                        run {
+                                            DataManager.setWarLifeWithUuid(member, 5)
+                                            DataManager.setIsInWarWithUuid(member, true)
+                                        }
+                                    }
+                                    CustomSMPPlugin.teamsMember[attackTeam.keys.first()]!!.forEach { member ->
+                                        run {
+                                            plugin.server.getPlayer(member)?.sendMessage(text("전쟁이 시작되었습니다."))
+
+                                        }
+                                    }
+                                    CustomSMPPlugin.teamsMember[defenseTeam.keys.first()]!!.forEach { member ->
+                                        run {
+                                            plugin.server.getPlayer(member)?.sendMessage(text("전쟁이 시작되었습니다."))
+                                        }
+                                    }
+                                    CustomSMPPlugin.warTaskList = CustomSMPPlugin.warTaskList.minus(CustomSMPPlugin.warTaskList[0])
+                                }, 60) // delay = 126000L로 할것
+                                CustomSMPPlugin.warTaskList = CustomSMPPlugin.warTaskList.plus(pendingWarTask.taskId)
+                                sender.sendMessage(text("전쟁이 예약되었습니다. 각 팀은 10분의 준비 시간을 가집니다."))
+                                sender.sendMessage(text("전쟁을 중지하려면 '/smp war stop ${pendingWarTask.taskId}' 명령어를 입력하면 됩니다."))
+                            }
+                        }
+                    }
+                }
+                then("stop") {
+                    requires { isOp }
+                    then("taskId" to int()) {
+                        executes {
+                            val taskId: Int by it
+                            if (!CustomSMPPlugin.warTaskList.contains(taskId)) {
+                                return@executes sender.sendMessage(text("일치하는 대기중인 전쟁 작업이 없습니다."))
+                            }
+                            plugin.server.scheduler.cancelTask(taskId)
+                            CustomSMPPlugin.warTaskList = CustomSMPPlugin.warTaskList.minus(taskId)
+                            sender.sendMessage(text("전쟁이 관리자에 의하여 취소되었습니다."))
+                        }
+                    }
+                }
+            }
+            then("setInvincible") {
+                requires { isOp || isConsole }
+                    then("add") {
+                        then("targetTeamName" to string(StringType.QUOTABLE_PHRASE)) {
+                            executes {
+                                val targetTeamName: String by it
+                                val targetTeam = CustomSMPPlugin.teamsName.filterValues { teamName -> teamName == targetTeamName }
+                                if (targetTeam.isEmpty()) {
+                                    return@executes sender.sendMessage(text("해당 팀을 찾을 수 없습니다."))
+                                }
+                                DataManager.addToInvincibleTeamUuids(targetTeam.keys.first())
+                                sender.sendMessage(text("해당 팀을 무적으로 설정하였습니다."))
+                            }
+                        }
+                    }
+                then("remove") {
+                    then("targetTeamName" to string(StringType.QUOTABLE_PHRASE)) {
+                        executes {
+                            val targetTeamName: String by it
+                            val targetTeam = CustomSMPPlugin.teamsName.filterValues { teamName -> teamName == targetTeamName }
+                            if (targetTeam.isEmpty()) {
+                                return@executes sender.sendMessage(text("해당 팀을 찾을 수 없습니다."))
+                            }
+                            DataManager.removeFromInvincibleTeamUuids(targetTeam.keys.first())
+                            sender.sendMessage(text("해당 팀을 무적에서 제거하였습니다."))
+                        }
+                    }
+                }
+
             }
         }
     }

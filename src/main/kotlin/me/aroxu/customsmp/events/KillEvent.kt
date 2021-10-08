@@ -24,12 +24,14 @@ import org.bukkit.event.player.PlayerRespawnEvent
 
 
 class KillEvent : Listener {
+    private var lastKilledPlayer: Player? = null
+
     @EventHandler
     fun onPlayerDeath(event: PlayerDeathEvent) {
         val target = event.entity
         if (event.entity.killer is Player) {
             val killer = target.killer!!
-
+            target.playerTime
             BetterMaxHealth.setMaxHealth(killer, BetterMaxHealth.getMaxHealth(killer) + 1)
         }
         if (isInWar[target.uniqueId]!!) {
@@ -60,6 +62,26 @@ class KillEvent : Listener {
                         }
                     }
                 }
+            }
+            if(CustomSMPPlugin.teamsMember[CustomSMPPlugin.playerTeam[target.uniqueId]]!!.all { Bukkit.getPlayer(it)?.gameMode == GameMode.SPECTATOR }){
+                CustomSMPPlugin.warTeams.filter { team -> team.first == CustomSMPPlugin.playerTeam[target.uniqueId] || team.second == CustomSMPPlugin.playerTeam[target.uniqueId] }.forEach { targetTeams ->
+                    run {
+                        CustomSMPPlugin.warTeams = CustomSMPPlugin.warTeams.minus(
+                            CustomSMPPlugin.warTeams[CustomSMPPlugin.warTeams.indexOf(targetTeams)]
+                        )
+                        CustomSMPPlugin.teamsMember[targetTeams.first]!!.forEach{ targetPlayer ->
+                            DataManager.setIsInWarWithUuid(targetPlayer, false)
+                        }
+                        CustomSMPPlugin.teamsMember[targetTeams.second]!!.forEach{ targetPlayer ->
+                            DataManager.setIsInWarWithUuid(targetPlayer, false)
+                        }
+                    }
+                }
+                CustomSMPPlugin.teamsMember[CustomSMPPlugin.playerTeam[target.uniqueId]]!!.forEach { targetPlayer ->
+                    Bukkit.getPlayer(targetPlayer)?.teleport(Location(Bukkit.getWorld("world"), 0.0, 120.0, 0.0))
+                    Bukkit.getPlayer(targetPlayer)?.gameMode = GameMode.SURVIVAL
+                }
+                lastKilledPlayer = target
             }
         } else {
             survivalLife[target.uniqueId] = survivalLife[target.uniqueId]!!.minus(1)
@@ -92,24 +114,31 @@ class KillEvent : Listener {
             }
         }
     }
+
     @EventHandler
-    fun onPlayerRespawn(event: PlayerRespawnEvent){
+    fun onPlayerRespawn(event: PlayerRespawnEvent) {
         val target = event.player
 
         if (survivalLife[target.uniqueId]!! == 0) {
             event.respawnLocation = Location(Bukkit.getWorld("world"), 0.0, 120.0, 0.0)
-        }
-        else
-            if(target.bedSpawnLocation == null){
+        } else {
+            if (target.bedSpawnLocation == null) {
                 val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
-                if(isTargetInTeam!!) {
+                if (isTargetInTeam!!) {
                     val targetTeam = CustomSMPPlugin.playerTeam[target.uniqueId]
                     val targetTeamName = CustomSMPPlugin.teamsName[targetTeam]
-                    val targetRegion = CustomSMPPlugin.regionsPos[targetTeamName]!!
+                    val targetRegion = CustomSMPPlugin.regionsPos[targetTeamName]
 
-                    val y = target.world.getHighestBlockYAt(targetRegion[0].toInt(), targetRegion[1].toInt()).toDouble()
-                    event.respawnLocation = Location(Bukkit.getWorld("world"), targetRegion[0], y , targetRegion[1])
+                    if (targetRegion != null) {
+                        val y = target.world.getHighestBlockYAt(targetRegion[0].toInt(), targetRegion[1].toInt()).toDouble()
+                        event.respawnLocation = Location(Bukkit.getWorld("world"), targetRegion[0], y, targetRegion[1])
+                    }
                 }
             }
+        }
+        if(lastKilledPlayer != null && target == lastKilledPlayer){
+            event.respawnLocation = (Location(Bukkit.getWorld("world"), 0.0, 120.0, 0.0))
+            lastKilledPlayer = null
+        }
     }
 }

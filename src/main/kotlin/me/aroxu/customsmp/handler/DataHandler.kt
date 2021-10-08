@@ -48,6 +48,7 @@ object DataHandler {
         val allRegionsName = DataManager.getAllRegionNames()
         val allTeamsRegion: HashMap<UUID, List<String>> = HashMap()
         val allRegions: HashMap<String, List<Double>> = HashMap()
+        val allInvincibleTeams: List<UUID> = DataManager.getAllInvinsibleTeamUuids()
 
         allTeamsUuid.forEach {
             allTeamsName[it] = DataManager.getTeamNameWithUuid(it)
@@ -71,5 +72,7 @@ object DataHandler {
         println("Loaded Regions Name List: ${CustomSMPPlugin.regionsName}")
         CustomSMPPlugin.regionsPos = allRegions
         println("Loaded Regions Pos Map: ${CustomSMPPlugin.regionsPos}")
+        CustomSMPPlugin.invincibleTeams = allInvincibleTeams
+        println("Loaded Invinsible Teams List: ${CustomSMPPlugin.invincibleTeams}")
     }
 }

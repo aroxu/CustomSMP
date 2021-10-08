@@ -25,7 +25,8 @@ class CustomSMPPlugin : JavaPlugin() {
         var warLife:HashMap<UUID, Int> = HashMap()
         var isInWar:HashMap<UUID, Boolean> = HashMap()
         var isInTeam:HashMap<UUID, Boolean> = HashMap()
-        var warTeams: HashMap<UUID, List<UUID>> = HashMap()
+        var isWarRequestPending: HashMap<UUID, Boolean> = HashMap()
+        var warTeams: List<Pair<UUID, UUID>> = emptyList()
         var playerTeam:HashMap<UUID, UUID> = HashMap()
         var isPlayerDataReady:HashMap<UUID, Boolean> = HashMap()
         var teamsName:HashMap<UUID, String> = HashMap()
@@ -34,6 +35,8 @@ class CustomSMPPlugin : JavaPlugin() {
         var teamsUuid: List<UUID> = emptyList()
         var regionsPos: HashMap<String, List<Double>> = HashMap()
         var regionsName: List<String> = emptyList()
+        var warTaskList: List<Int> = emptyList()
+        var invincibleTeams: List<UUID> = emptyList()
     }
 
     override fun onEnable() {
