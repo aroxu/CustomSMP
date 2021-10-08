@@ -736,7 +736,7 @@ object CustomSMPCommand {
                                         }
                                     }
                                     CustomSMPPlugin.warTaskList = CustomSMPPlugin.warTaskList.minus(CustomSMPPlugin.warTaskList[0])
-                                }, 60) // delay = 126000L로 할것
+                                }, 126000L) // delay = 126000L로 할것
                                 CustomSMPPlugin.warTaskList = CustomSMPPlugin.warTaskList.plus(pendingWarTask.taskId)
                                 sender.sendMessage(text("전쟁이 예약되었습니다. 각 팀은 10분의 준비 시간을 가집니다."))
                                 sender.sendMessage(text("전쟁을 중지하려면 '/smp war stop ${pendingWarTask.taskId}' 명령어를 입력하면 됩니다."))
