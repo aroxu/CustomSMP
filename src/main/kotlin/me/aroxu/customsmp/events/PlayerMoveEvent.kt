@@ -3,6 +3,7 @@ package me.aroxu.customsmp.events
 import me.aroxu.customsmp.CustomSMPPlugin
 import net.kyori.adventure.text.Component.text
 import org.bukkit.Bukkit
+import org.bukkit.block.data.type.Bed
 import org.bukkit.entity.Arrow
 import org.bukkit.entity.Player
 import org.bukkit.entity.Trident
@@ -552,6 +553,9 @@ class PlayerMoveEvent : Listener {
                 val z1 = min(regionPos[1], regionPos[3])
                 val z2 = max(regionPos[1], regionPos[3])
 
+                if (event.block.getRelative(event.direction).location.x in x1..x2 && event.block.getRelative(event.direction).location.z in z1..z2){
+                    event.isCancelled = true
+                }
                 event.blocks.forEach { block ->
                     if (block.location.x in x1..x2 && block.location.z in z1..z2) {
                         event.isCancelled = true
@@ -594,4 +598,30 @@ class PlayerMoveEvent : Listener {
             }
         }
     }
+
+    @EventHandler
+    fun onPlayerBedEnter(event: PlayerBedEnterEvent){
+        val target = event.player
+        val bed = event.bed
+
+        val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
+        val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
+        CustomSMPPlugin.regionsName.forEach { region ->
+            run {
+                if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
+                    val regionPos = CustomSMPPlugin.regionsPos[region]!!
+
+                    val x1 = min(regionPos[0], regionPos[2])
+                    val x2 = max(regionPos[0], regionPos[2])
+                    val z1 = min(regionPos[1], regionPos[3])
+                    val z2 = max(regionPos[1], regionPos[3])
+
+                    if (bed.location.x in x1..x2 && bed.location.z in z1..z2) {
+                        event.isCancelled = true
+                    }
+                }
+            }
+        }
+    }
+
 }
