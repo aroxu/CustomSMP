@@ -1,22 +1,20 @@
 package me.aroxu.customsmp.events
 
+import io.papermc.paper.event.entity.EntityMoveEvent
+import kotlin.math.*
 import me.aroxu.customsmp.CustomSMPPlugin
 import net.kyori.adventure.text.Component.text
 import org.bukkit.Bukkit
-import org.bukkit.block.data.type.Bed
-import org.bukkit.entity.Arrow
-import org.bukkit.entity.Player
-import org.bukkit.entity.Trident
+import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
+import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.player.*
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.vehicle.VehicleMoveEvent
-import kotlin.math.*
-
 
 class PlayerMoveEvent : Listener {
     @EventHandler
@@ -24,31 +22,28 @@ class PlayerMoveEvent : Listener {
         val target = event.player
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
-        val targetPosition = target.location
         val destination = event.to
         val sm = Bukkit.getServer().scoreboardManager
         val sc = sm.mainScoreboard
-        if (sc.getObjective("RegionJoined") == null) sc.registerNewObjective(
-            "RegionJoined",
-            "dummy",
-            text("RegionJoined")
-        )
+        if (sc.getObjective("RegionJoined") == null)
+                sc.registerNewObjective("RegionJoined", "dummy", text("RegionJoined"))
         val ob = sc.getObjective("RegionJoined")!!
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
-                        if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
-                            return@run
-                        }
-                        CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                            it == region
-                        } ||
-                        CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                            it == region
-                        } &&
-                        u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                        u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                    } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+                            if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                                            CustomSMPPlugin.teamsRegion[u.second] == null
+                            ) {
+                                return@run
+                            }
+                            CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                    CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                    CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                    (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                    u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                        } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                )
+                        return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -61,7 +56,11 @@ class PlayerMoveEvent : Listener {
                     if (destination.x in x1..x2 && destination.z in z1..z2) {
                         event.isCancelled = true
                     }
-                } else if (isTargetInTeam && targetRegion.contains(region) && ob.getScore(target.uniqueId.toString()).score == 0) {
+                }
+                else if (isTargetInTeam &&
+                                targetRegion.contains(region) &&
+                                ob.getScore(target.uniqueId.toString()).score == 0
+                ) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
 
                     val x1 = min(regionPos[0], regionPos[2])
@@ -82,7 +81,10 @@ class PlayerMoveEvent : Listener {
                     val z1 = min(regionPos[1], regionPos[3])
                     val z2 = max(regionPos[1], regionPos[3])
 
-                    if (event.from.x in x1..x2 && event.from.z in z1..z2 && (destination.x !in x1..x2 || destination.z !in z1..z2)) {
+                    if (event.from.x in x1..x2 &&
+                                    event.from.z in z1..z2 &&
+                                    (destination.x !in x1..x2 || destination.z !in z1..z2)
+                    ) {
                         event.isCancelled = true
                     }
                 }
@@ -95,23 +97,23 @@ class PlayerMoveEvent : Listener {
         val target = event.player
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
-        val targetPosition = target.location
         val destination = event.to
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
-                        if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
+                        if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                            CustomSMPPlugin.teamsRegion[u.second] == null
+                        ) {
                             return@run
                         }
-                        CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                            it == region
-                        } ||
-                                CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                                    it == region
-                                } &&
-                                u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                                u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                    } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+                        CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                        u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                    } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                )
+                    return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -133,11 +135,13 @@ class PlayerMoveEvent : Listener {
                     val z1 = min(regionPos[1], regionPos[3])
                     val z2 = max(regionPos[1], regionPos[3])
 
-                    if (event.from.x in x1..x2 && event.from.z in z1..z2 && (destination.x !in x1..x2 || destination.z !in z1..z2)) {
+                    if (event.from.x in x1..x2 &&
+                                    event.from.z in z1..z2 &&
+                                    (destination.x !in x1..x2 || destination.z !in z1..z2)
+                    ) {
                         event.isCancelled = true
                     }
                 }
-
             }
         }
     }
@@ -145,28 +149,31 @@ class PlayerMoveEvent : Listener {
     @EventHandler
     fun onVehicleMove(event: VehicleMoveEvent) {
         if (!event.vehicle.passengers.isNullOrEmpty()) {
-            val target = event.vehicle.passengers[0]
-            val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
-            val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
-            val targetPosition = target.location
-            val destination = event.to
-            CustomSMPPlugin.regionsName.forEach { region ->
-                run {
-                    if (CustomSMPPlugin.warTeams.any { u ->
-                            if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
-                                return@run
-                            }
-                            CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                                it == region
-                            } ||
-                                    CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                                        it == region
-                                    } &&
-                                    u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                                    u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                        } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+        val target = event.vehicle.passengers[0]
+        val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
+        val targetRegion =
+                CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
+        val destination = event.to
+        CustomSMPPlugin.regionsName.forEach { region ->
+            run {
 
-                    if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
+                if (CustomSMPPlugin.warTeams.any { u ->
+                        if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                            CustomSMPPlugin.teamsRegion[u.second] == null
+                        ) {
+                            return@run
+                        }
+                        CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                        u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                    } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                )
+                    return@run
+
+                    if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)
+                    ) {
                         val regionPos = CustomSMPPlugin.regionsPos[region]!!
 
                         val x1 = min(regionPos[0], regionPos[2])
@@ -179,6 +186,23 @@ class PlayerMoveEvent : Listener {
                             target.teleport(event.from)
                             event.vehicle.teleport(event.from)
                         }
+                    }
+                }
+
+            }
+        }
+        else{
+            CustomSMPPlugin.regionsName.forEach { region ->
+                run {
+                    val regionPos = CustomSMPPlugin.regionsPos[region]!!
+
+                    val x1 = min(regionPos[0], regionPos[2])
+                    val x2 = max(regionPos[0], regionPos[2])
+                    val z1 = min(regionPos[1], regionPos[3])
+                    val z2 = max(regionPos[1], regionPos[3])
+
+                    if (event.from.x !in x1..x2 && event.from.z !in z1..z2 && (event.to.x in x1..x2 || event.to.z in z1..z2)) {
+                        event.vehicle.teleport(event.from)
                     }
                 }
             }
@@ -195,18 +219,19 @@ class PlayerMoveEvent : Listener {
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
-                        if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
+                        if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                            CustomSMPPlugin.teamsRegion[u.second] == null
+                        ) {
                             return@run
                         }
-                        CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                            it == region
-                        } ||
-                                CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                                    it == region
-                                } &&
-                                u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                                u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                    } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+                        CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                        u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                    } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                )
+                    return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -220,7 +245,6 @@ class PlayerMoveEvent : Listener {
                         event.isCancelled = true
                     }
                 }
-
             }
         }
     }
@@ -234,18 +258,19 @@ class PlayerMoveEvent : Listener {
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
-                        if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
+                        if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                            CustomSMPPlugin.teamsRegion[u.second] == null
+                        ) {
                             return@run
                         }
-                        CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                            it == region
-                        } ||
-                                CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                                    it == region
-                                } &&
-                                u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                                u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                    } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+                        CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                        u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                    } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                )
+                    return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -259,7 +284,6 @@ class PlayerMoveEvent : Listener {
                         event.isCancelled = true
                     }
                 }
-
             }
         }
     }
@@ -271,24 +295,29 @@ class PlayerMoveEvent : Listener {
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
         val entity = event.entity
 
-        if (target is Player || (entity is Arrow && entity.shooter is Player) || (entity is Trident && entity.shooter is Player)) {
+        if (target is Player ||
+                        (target is Arrow && target.shooter is Player) ||
+                        (target is Trident && target.shooter is Player)
+        ) {
             CustomSMPPlugin.regionsName.forEach { region ->
                 run {
                     if (CustomSMPPlugin.warTeams.any { u ->
-                            if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
+                            if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                                CustomSMPPlugin.teamsRegion[u.second] == null
+                            ) {
                                 return@run
                             }
-                            CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                                it == region
-                            } ||
-                                    CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                                        it == region
-                                    } &&
-                                    u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                                    u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                        } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+                            CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                    CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                    CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                    (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                            u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                        } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                    )
+                        return@run
 
-                    if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
+                    if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)
+                    ) {
                         val regionPos = CustomSMPPlugin.regionsPos[region]!!
 
                         val x1 = min(regionPos[0], regionPos[2])
@@ -304,9 +333,27 @@ class PlayerMoveEvent : Listener {
                         }
                     }
                 }
-
             }
         } else event.isCancelled = false
+    }
+
+    @EventHandler
+    fun onBlockFromTo(event: BlockFromToEvent){
+        CustomSMPPlugin.regionsName.forEach { region ->
+            run {
+                val regionPos = CustomSMPPlugin.regionsPos[region]!!
+
+                val x1 = min(regionPos[0], regionPos[2])
+                val x2 = max(regionPos[0], regionPos[2])
+                val z1 = min(regionPos[1], regionPos[3])
+                val z2 = max(regionPos[1], regionPos[3])
+
+                if (event.toBlock.location.x in x1..x2 && event.toBlock.location.z in z1..z2) {
+                    event.isCancelled = true
+                }
+
+            }
+        }
     }
 
     @EventHandler
@@ -318,18 +365,19 @@ class PlayerMoveEvent : Listener {
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
-                        if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
+                        if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                            CustomSMPPlugin.teamsRegion[u.second] == null
+                        ) {
                             return@run
                         }
-                        CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                            it == region
-                        } ||
-                                CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                                    it == region
-                                } &&
-                                u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                                u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                    } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+                        CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                        u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                    } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                )
+                    return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -356,18 +404,19 @@ class PlayerMoveEvent : Listener {
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
-                        if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
+                        if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                            CustomSMPPlugin.teamsRegion[u.second] == null
+                        ) {
                             return@run
                         }
-                        CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                            it == region
-                        } ||
-                                CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                                    it == region
-                                } &&
-                                u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                                u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                    } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+                        CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                        u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                    } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                )
+                    return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -381,7 +430,6 @@ class PlayerMoveEvent : Listener {
                         event.isCancelled = true
                     }
                 }
-
             }
         }
     }
@@ -397,20 +445,22 @@ class PlayerMoveEvent : Listener {
             CustomSMPPlugin.regionsName.forEach { region ->
                 run {
                     if (CustomSMPPlugin.warTeams.any { u ->
-                            if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
+                            if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                                CustomSMPPlugin.teamsRegion[u.second] == null
+                            ) {
                                 return@run
                             }
-                            CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                                it == region
-                            } ||
-                                    CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                                        it == region
-                                    } &&
-                                    u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                                    u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                        } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+                            CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                    CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                    CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                    (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                            u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                        } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                    )
+                        return@run
 
-                    if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
+                    if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)
+                    ) {
                         val regionPos = CustomSMPPlugin.regionsPos[region]!!
 
                         val x1 = min(regionPos[0], regionPos[2])
@@ -436,18 +486,19 @@ class PlayerMoveEvent : Listener {
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
-                        if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
+                        if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                            CustomSMPPlugin.teamsRegion[u.second] == null
+                        ) {
                             return@run
                         }
-                        CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                            it == region
-                        } ||
-                                CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                                    it == region
-                                } &&
-                                u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                                u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                    } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+                        CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                        u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                    } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                )
+                    return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -474,18 +525,19 @@ class PlayerMoveEvent : Listener {
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
-                        if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
+                        if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                            CustomSMPPlugin.teamsRegion[u.second] == null
+                        ) {
                             return@run
                         }
-                        CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                            it == region
-                        } ||
-                                CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                                    it == region
-                                } &&
-                                u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                                u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                    } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+                        CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                        u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                    } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                )
+                    return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -512,18 +564,19 @@ class PlayerMoveEvent : Listener {
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
-                        if (CustomSMPPlugin.teamsRegion[u.first] == null || CustomSMPPlugin.teamsRegion[u.second] == null) {
+                        if (CustomSMPPlugin.teamsRegion[u.first] == null ||
+                            CustomSMPPlugin.teamsRegion[u.second] == null
+                        ) {
                             return@run
                         }
-                        CustomSMPPlugin.teamsRegion[u.first]!!.any {
-                            it == region
-                        } ||
-                                CustomSMPPlugin.teamsRegion[u.second]!!.any {
-                                    it == region
-                                } &&
-                                u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
-                                u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!
-                    } && CustomSMPPlugin.isInWar[target.uniqueId]!! ) return@run
+                        CustomSMPPlugin.teamsRegion[u.first]!!.any { it == region } ||
+                                CustomSMPPlugin.teamsRegion[u.second]!!.any { it == region } &&
+                                CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
+                                (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
+                                        u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
+                    } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                )
+                    return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -538,7 +591,6 @@ class PlayerMoveEvent : Listener {
                     }
                 }
             }
-
         }
     }
 
@@ -553,7 +605,34 @@ class PlayerMoveEvent : Listener {
                 val z1 = min(regionPos[1], regionPos[3])
                 val z2 = max(regionPos[1], regionPos[3])
 
-                if (event.block.getRelative(event.direction).location.x in x1..x2 && event.block.getRelative(event.direction).location.z in z1..z2){
+                if (event.block.getRelative(event.direction).location.x in x1..x2 &&
+                                event.block.getRelative(event.direction).location.z in z1..z2
+                ) {
+                    event.isCancelled = true
+                }
+                event.blocks.forEach { block ->
+                    if (block.location.x in x1..x2 && block.location.z in z1..z2) {
+                        event.isCancelled = true
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    fun onBlockPisonRetract(event: BlockPistonRetractEvent){
+        CustomSMPPlugin.regionsName.forEach { region ->
+            run {
+                val regionPos = CustomSMPPlugin.regionsPos[region]!!
+
+                val x1 = min(regionPos[0], regionPos[2])
+                val x2 = max(regionPos[0], regionPos[2])
+                val z1 = min(regionPos[1], regionPos[3])
+                val z2 = max(regionPos[1], regionPos[3])
+
+                if (event.block.getRelative(event.direction).location.x in x1..x2 &&
+                    event.block.getRelative(event.direction).location.z in z1..z2
+                ) {
                     event.isCancelled = true
                 }
                 event.blocks.forEach { block ->
@@ -577,7 +656,6 @@ class PlayerMoveEvent : Listener {
                 val z2 = max(regionPos[1], regionPos[3])
 
                 event.blockList().removeIf { it.location.x in x1..x2 && it.location.z in z1..z2 }
-
             }
         }
     }
@@ -594,13 +672,12 @@ class PlayerMoveEvent : Listener {
                 val z2 = max(regionPos[1], regionPos[3])
 
                 event.blockList().removeIf { it.location.x in x1..x2 && it.location.z in z1..z2 }
-
             }
         }
     }
 
     @EventHandler
-    fun onPlayerBedEnter(event: PlayerBedEnterEvent){
+    fun onPlayerBedEnter(event: PlayerBedEnterEvent) {
         val target = event.player
         val bed = event.bed
 
@@ -624,4 +701,53 @@ class PlayerMoveEvent : Listener {
         }
     }
 
+    @EventHandler
+    fun onPlayerFish(event: PlayerFishEvent){
+        val target = event.player
+        val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
+        val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
+        val entity = event.caught
+
+        CustomSMPPlugin.regionsName.forEach { region ->
+            run {
+                if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
+                    val regionPos = CustomSMPPlugin.regionsPos[region]!!
+
+                    val x1 = min(regionPos[0], regionPos[2])
+                    val x2 = max(regionPos[0], regionPos[2])
+                    val z1 = min(regionPos[1], regionPos[3])
+                    val z2 = max(regionPos[1], regionPos[3])
+
+                    if(entity != null) {
+                        if (entity.location.x in x1..x2 && entity.location.z in z1..z2) {
+                            event.isCancelled = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    fun onEntityChangeBlock(event: EntityChangeBlockEvent){
+        val target = event.entity
+        val block = event.block
+
+        CustomSMPPlugin.regionsName.forEach { region ->
+            run {
+                if (target is FallingBlock || target is Boat || target is Minecart) {
+                    val regionPos = CustomSMPPlugin.regionsPos[region]!!
+
+                    val x1 = min(regionPos[0], regionPos[2])
+                    val x2 = max(regionPos[0], regionPos[2])
+                    val z1 = min(regionPos[1], regionPos[3])
+                    val z2 = max(regionPos[1], regionPos[3])
+
+                    if (block.location.x in x1..x2 && block.location.z in z1..z2) {
+                        event.isCancelled = true
+                    }
+                }
+            }
+        }
+    }
 }

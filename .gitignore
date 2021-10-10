@@ -27,3 +27,7 @@ hs_err_pid*
 build/
 .server/
 .DS_Store
+bin/
+.classpath
+.settings/org.eclipse.buildship.core.prefs
+.project

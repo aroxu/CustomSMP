@@ -240,16 +240,16 @@ object CustomSMPCommand {
                                 return@executes sender.sendMessage(text("일치하는 팀 이름이 없습니다."))
                             }
                             val teamUuid =
-                                CustomSMPPlugin.teamsName.filterValues { team -> team == teamName }.keys.first()
-                            if (!(CustomSMPPlugin.teamsMember[teamUuid] == null) || CustomSMPPlugin.teamsMember[teamUuid]!!.isNotEmpty()) {
-                                CustomSMPPlugin.teamsMember[teamUuid]!!.forEach { member ->
+                                CustomSMPPlugin.teamsName.filterValues { team -> team == teamName }
+                            if (teamUuid != null || teamUuid.keys.isNotEmpty() || !(CustomSMPPlugin.teamsMember[teamUuid.keys.first()] == null) || CustomSMPPlugin.teamsMember[teamUuid.keys.first()]!!.isNotEmpty()) {
+                                CustomSMPPlugin.teamsMember[teamUuid.keys.first()]!!.forEach { member ->
                                     DataManager.setIsInTeamWithUuid(
                                         member,
                                         false
                                     )
                                 }
                             }
-                            DataManager.removeTeamWithUuid(teamUuid)
+                            DataManager.removeTeamWithUuid(teamUuid.keys.first())
                             sender.playSound(
                                 sound(
                                     Key.key("block.note_block.pling"),
@@ -736,7 +736,7 @@ object CustomSMPCommand {
                                         }
                                     }
                                     CustomSMPPlugin.warTaskList = CustomSMPPlugin.warTaskList.minus(CustomSMPPlugin.warTaskList[0])
-                                }, 126000L) // delay = 126000L로 할것
+                                }, 20) // delay = 126000L로 할것
                                 CustomSMPPlugin.warTaskList = CustomSMPPlugin.warTaskList.plus(pendingWarTask.taskId)
                                 sender.sendMessage(text("전쟁이 예약되었습니다. 각 팀은 10분의 준비 시간을 가집니다."))
                                 sender.sendMessage(text("전쟁을 중지하려면 '/smp war stop ${pendingWarTask.taskId}' 명령어를 입력하면 됩니다."))

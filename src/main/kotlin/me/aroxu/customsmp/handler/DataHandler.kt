@@ -73,6 +73,6 @@ object DataHandler {
         CustomSMPPlugin.regionsPos = allRegions
         println("Loaded Regions Pos Map: ${CustomSMPPlugin.regionsPos}")
         CustomSMPPlugin.invincibleTeams = allInvincibleTeams
-        println("Loaded Invinsible Teams List: ${CustomSMPPlugin.invincibleTeams}")
+        println("Loaded Invincible Teams List: ${CustomSMPPlugin.invincibleTeams}")
     }
 }
