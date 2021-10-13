@@ -26,7 +26,7 @@ import kotlin.collections.HashMap
 object CustomSMPCommand {
     fun register(builder: LiteralNode) {
         builder.apply {
-            then("about") { executes { sender.sendMessage("CustomSMP by aroxu.") } }
+            then("about") { executes { sender.sendMessage("CustomSMP by aroxu and PyBsh.") } }
             then("lifeSet") {
                 requires { isOp || isConsole }
                 then("survival") {

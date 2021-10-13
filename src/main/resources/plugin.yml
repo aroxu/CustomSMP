@@ -3,7 +3,7 @@ main: me.aroxu.customsmp.CustomSMPPlugin
 version: $version
 api-version: '1.17'
 
-author: aroxu
+author: aroxu, PyBsh
 
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21

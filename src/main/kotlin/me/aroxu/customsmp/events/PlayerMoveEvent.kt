@@ -28,6 +28,9 @@ class PlayerMoveEvent : Listener {
         if (sc.getObjective("RegionJoined") == null)
                 sc.registerNewObjective("RegionJoined", "dummy", text("RegionJoined"))
         val ob = sc.getObjective("RegionJoined")!!
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
@@ -44,6 +47,9 @@ class PlayerMoveEvent : Listener {
                         } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                 )
                         return@run
+
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -98,6 +104,11 @@ class PlayerMoveEvent : Listener {
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
         val destination = event.to
+        val sm = Bukkit.getServer().scoreboardManager
+        val sc = sm.mainScoreboard
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
@@ -114,6 +125,9 @@ class PlayerMoveEvent : Listener {
                     } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                 )
                     return@run
+
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -154,6 +168,11 @@ class PlayerMoveEvent : Listener {
         val targetRegion =
                 CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
         val destination = event.to
+        val sm = Bukkit.getServer().scoreboardManager
+        val sc = sm.mainScoreboard
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
 
@@ -171,6 +190,9 @@ class PlayerMoveEvent : Listener {
                     } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                 )
                     return@run
+
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                     if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)
                     ) {
@@ -215,6 +237,11 @@ class PlayerMoveEvent : Listener {
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
         val block = event.clickedBlock
+        val sm = Bukkit.getServer().scoreboardManager
+        val sc = sm.mainScoreboard
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
 
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
@@ -232,6 +259,9 @@ class PlayerMoveEvent : Listener {
                     } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                 )
                     return@run
+
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -255,6 +285,12 @@ class PlayerMoveEvent : Listener {
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
         val entity = event.rightClicked
+        val sm = Bukkit.getServer().scoreboardManager
+        val sc = sm.mainScoreboard
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
+
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
@@ -271,6 +307,9 @@ class PlayerMoveEvent : Listener {
                     } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                 )
                     return@run
+
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -294,6 +333,11 @@ class PlayerMoveEvent : Listener {
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
         val entity = event.entity
+        val sm = Bukkit.getServer().scoreboardManager
+        val sc = sm.mainScoreboard
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
 
         if (target is Player ||
                         (target is Arrow && target.shooter is Player) ||
@@ -315,6 +359,9 @@ class PlayerMoveEvent : Listener {
                         } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                     )
                         return@run
+
+                    val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                    if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                     if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)
                     ) {
@@ -362,6 +409,12 @@ class PlayerMoveEvent : Listener {
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
         val block = event.block
+        val sm = Bukkit.getServer().scoreboardManager
+        val sc = sm.mainScoreboard
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
+
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
@@ -378,6 +431,9 @@ class PlayerMoveEvent : Listener {
                     } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                 )
                     return@run
+
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -401,6 +457,12 @@ class PlayerMoveEvent : Listener {
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
         val block = event.block
+        val sm = Bukkit.getServer().scoreboardManager
+        val sc = sm.mainScoreboard
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
+
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
@@ -417,6 +479,9 @@ class PlayerMoveEvent : Listener {
                     } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                 )
                     return@run
+
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -440,6 +505,11 @@ class PlayerMoveEvent : Listener {
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target?.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target?.uniqueId]]
         val block = event.block
+        val sm = Bukkit.getServer().scoreboardManager
+        val sc = sm.mainScoreboard
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
 
         if (target != null) {
             CustomSMPPlugin.regionsName.forEach { region ->
@@ -458,6 +528,9 @@ class PlayerMoveEvent : Listener {
                         } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                     )
                         return@run
+
+                    val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                    if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                     if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)
                     ) {
@@ -483,6 +556,12 @@ class PlayerMoveEvent : Listener {
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
         val block = event.blockClicked
+        val sm = Bukkit.getServer().scoreboardManager
+        val sc = sm.mainScoreboard
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
+
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
@@ -499,6 +578,9 @@ class PlayerMoveEvent : Listener {
                     } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                 )
                     return@run
+
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -522,6 +604,12 @@ class PlayerMoveEvent : Listener {
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
         val block = event.blockClicked
+        val sm = Bukkit.getServer().scoreboardManager
+        val sc = sm.mainScoreboard
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
+
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
@@ -538,6 +626,9 @@ class PlayerMoveEvent : Listener {
                     } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                 )
                     return@run
+
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -561,6 +652,12 @@ class PlayerMoveEvent : Listener {
         val isTargetInTeam = CustomSMPPlugin.isInTeam[target.uniqueId]
         val targetRegion = CustomSMPPlugin.teamsRegion[CustomSMPPlugin.playerTeam[target.uniqueId]]
         val item = event.item
+        val sm = Bukkit.getServer().scoreboardManager
+        val sc = sm.mainScoreboard
+        if(sc.getObjective("WarCooldown") == null)
+            sc.registerNewObjective("WarCooldown","dummy",text("WarCooldown"))
+        val cob = sc.getObjective("WarCooldown")!!
+
         CustomSMPPlugin.regionsName.forEach { region ->
             run {
                 if (CustomSMPPlugin.warTeams.any { u ->
@@ -577,6 +674,9 @@ class PlayerMoveEvent : Listener {
                     } && CustomSMPPlugin.isInWar[target.uniqueId]!!
                 )
                     return@run
+
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
+                if(cob.getScore(regionTeam.toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
