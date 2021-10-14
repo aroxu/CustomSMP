@@ -26,7 +26,7 @@ import kotlin.collections.HashMap
 object CustomSMPCommand {
     fun register(builder: LiteralNode) {
         builder.apply {
-            then("about") { executes { sender.sendMessage("CustomSMP by aroxu.") } }
+            then("about") { executes { sender.sendMessage("CustomSMP by aroxu and PyBsh.") } }
             then("lifeSet") {
                 requires { isOp || isConsole }
                 then("survival") {
@@ -557,6 +557,11 @@ object CustomSMPCommand {
                                 CustomSMPPlugin.teamsMember[requestTeam.keys.first()]?.forEach { u ->
                                     Bukkit.getPlayer(u)?.bedSpawnLocation = player.location
                                 }
+
+                                CustomSMPPlugin.teamsMember[CustomSMPPlugin.playerTeam[player.uniqueId]]!!.forEach { member ->
+                                    plugin.server.getPlayer(member)?.setBedSpawnLocation(player.location, true)
+                                }
+
 
                                 plugin.server.onlinePlayers.forEach { targetPlayer ->
                                     run {
