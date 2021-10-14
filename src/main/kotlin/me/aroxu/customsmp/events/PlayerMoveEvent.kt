@@ -48,8 +48,8 @@ class PlayerMoveEvent : Listener {
                 )
                         return@run
 
-                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
-                if(cob.getScore(regionTeam.toString()).score == 1) return@run
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }
+                if(regionTeam.isNotEmpty() && cob.getScore(regionTeam.keys.first().toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -65,7 +65,7 @@ class PlayerMoveEvent : Listener {
                 }
                 else if (isTargetInTeam &&
                                 targetRegion.contains(region) &&
-                                ob.getScore(target.uniqueId.toString()).score == 0
+                                ob.getScore(target.uniqueId.toString()).score != 1
                 ) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
 
@@ -126,8 +126,8 @@ class PlayerMoveEvent : Listener {
                 )
                     return@run
 
-                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
-                if(cob.getScore(regionTeam.toString()).score == 1) return@run
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }
+                if(regionTeam.isNotEmpty() && cob.getScore(regionTeam.keys.first().toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -191,8 +191,8 @@ class PlayerMoveEvent : Listener {
                 )
                     return@run
 
-                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
-                if(cob.getScore(regionTeam.toString()).score == 1) return@run
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }
+                if(regionTeam.isNotEmpty() && cob.getScore(regionTeam.keys.first().toString()).score == 1) return@run
 
                     if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)
                     ) {
@@ -260,8 +260,8 @@ class PlayerMoveEvent : Listener {
                 )
                     return@run
 
-                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
-                if(cob.getScore(regionTeam.toString()).score == 1) return@run
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }
+                if(regionTeam.isNotEmpty() && cob.getScore(regionTeam.keys.first().toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -308,8 +308,8 @@ class PlayerMoveEvent : Listener {
                 )
                     return@run
 
-                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
-                if(cob.getScore(regionTeam.toString()).score == 1) return@run
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }
+                if(regionTeam.isNotEmpty() && cob.getScore(regionTeam.keys.first().toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -356,7 +356,7 @@ class PlayerMoveEvent : Listener {
                                     CustomSMPPlugin.playerTeam[target.uniqueId] != null &&
                                     (u.first == CustomSMPPlugin.playerTeam[target.uniqueId]!! ||
                                             u.second == CustomSMPPlugin.playerTeam[target.uniqueId]!!)
-                        } && CustomSMPPlugin.isInWar[target.uniqueId]!!
+                        } && target is Player && CustomSMPPlugin.isInWar[target.uniqueId]!!
                     )
                         return@run
 
@@ -432,8 +432,8 @@ class PlayerMoveEvent : Listener {
                 )
                     return@run
 
-                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
-                if(cob.getScore(regionTeam.toString()).score == 1) return@run
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }
+                if(regionTeam.isNotEmpty() && cob.getScore(regionTeam.keys.first().toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -480,8 +480,8 @@ class PlayerMoveEvent : Listener {
                 )
                     return@run
 
-                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
-                if(cob.getScore(regionTeam.toString()).score == 1) return@run
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }
+                if(regionTeam.isNotEmpty() && cob.getScore(regionTeam.keys.first().toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -579,8 +579,8 @@ class PlayerMoveEvent : Listener {
                 )
                     return@run
 
-                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
-                if(cob.getScore(regionTeam.toString()).score == 1) return@run
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }
+                if(regionTeam.isNotEmpty() && cob.getScore(regionTeam.keys.first().toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -627,8 +627,8 @@ class PlayerMoveEvent : Listener {
                 )
                     return@run
 
-                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
-                if(cob.getScore(regionTeam.toString()).score == 1) return@run
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }
+                if(regionTeam.isNotEmpty() && cob.getScore(regionTeam.keys.first().toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!
@@ -675,8 +675,8 @@ class PlayerMoveEvent : Listener {
                 )
                     return@run
 
-                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }.keys.first()
-                if(cob.getScore(regionTeam.toString()).score == 1) return@run
+                val regionTeam = CustomSMPPlugin.teamsRegion.filterValues { it.contains(region) }
+                if(regionTeam.isNotEmpty() && cob.getScore(regionTeam.keys.first().toString()).score == 1) return@run
 
                 if (targetRegion == null || !isTargetInTeam!! || !targetRegion.contains(region)) {
                     val regionPos = CustomSMPPlugin.regionsPos[region]!!

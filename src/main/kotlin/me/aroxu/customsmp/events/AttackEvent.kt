@@ -82,7 +82,7 @@ class AttackEvent : Listener {
                 .runTaskLater(CustomSMPPlugin.plugin, Runnable { task.cancel() }, 100L)
         }
         if (CustomSMPPlugin.invincibleTeams.any {
-                CustomSMPPlugin.teamsMember[it]!!.any { p -> p == target.uniqueId }
+                CustomSMPPlugin.teamsMember[it]!!.any { p -> p == target.uniqueId || p == damager.uniqueId}
             }
         ) {
             event.isCancelled = true

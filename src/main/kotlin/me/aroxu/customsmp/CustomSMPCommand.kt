@@ -558,6 +558,11 @@ object CustomSMPCommand {
                                     Bukkit.getPlayer(u)?.bedSpawnLocation = player.location
                                 }
 
+                                CustomSMPPlugin.teamsMember[CustomSMPPlugin.playerTeam[player.uniqueId]]!!.forEach { member ->
+                                    plugin.server.getPlayer(member)?.setBedSpawnLocation(player.location, true)
+                                }
+
+
                                 plugin.server.onlinePlayers.forEach { targetPlayer ->
                                     run {
                                         if (targetPlayer.isOp) {
