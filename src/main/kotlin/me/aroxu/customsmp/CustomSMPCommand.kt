@@ -241,12 +241,14 @@ object CustomSMPCommand {
                             }
                             val teamUuid =
                                 CustomSMPPlugin.teamsName.filterValues { team -> team == teamName }
-                            if (teamUuid != null || teamUuid.keys.isNotEmpty() || !(CustomSMPPlugin.teamsMember[teamUuid.keys.first()] == null) || CustomSMPPlugin.teamsMember[teamUuid.keys.first()]!!.isNotEmpty()) {
-                                CustomSMPPlugin.teamsMember[teamUuid.keys.first()]!!.forEach { member ->
-                                    DataManager.setIsInTeamWithUuid(
-                                        member,
-                                        false
-                                    )
+                            if (CustomSMPPlugin.teamsMember[teamUuid.keys.first()] != null) {
+                                if (teamUuid != null || teamUuid.keys.isNotEmpty() || !(CustomSMPPlugin.teamsMember[teamUuid.keys.first()] == null) || CustomSMPPlugin.teamsMember[teamUuid.keys.first()]!!.isNotEmpty()) {
+                                    CustomSMPPlugin.teamsMember[teamUuid.keys.first()]!!.forEach { member ->
+                                        DataManager.setIsInTeamWithUuid(
+                                            member,
+                                            false
+                                        )
+                                    }
                                 }
                             }
                             DataManager.removeTeamWithUuid(teamUuid.keys.first())
@@ -437,12 +439,14 @@ object CustomSMPCommand {
                                     teamRegionName.contains(
                                         regionName
                                     )
-                                }.keys.toList()
-                            teamsUuid.forEach { team ->
-                                DataManager.setTeamRegionsNameWithUuid(
-                                    team,
-                                    CustomSMPPlugin.teamsRegion[team]!!.minus(regionName)
-                                )
+                                }
+                            if (CustomSMPPlugin.teamsRegion[teamsUuid.keys.first()] != null) {
+                                teamsUuid.keys.toList().forEach { team ->
+                                    DataManager.setTeamRegionsNameWithUuid(
+                                        team,
+                                        CustomSMPPlugin.teamsRegion[team]!!.minus(regionName)
+                                    )
+                                }
                             }
                             DataManager.removeRegionWithName(regionName)
                             sender.sendMessage(text("\"${regionName}\" 영역이 제거되었습니다."))
@@ -741,7 +745,7 @@ object CustomSMPCommand {
                                         }
                                     }
                                     CustomSMPPlugin.warTaskList = CustomSMPPlugin.warTaskList.minus(CustomSMPPlugin.warTaskList[0])
-                                }, 20) // delay = 126000L로 할것
+                                }, 12000L)
                                 CustomSMPPlugin.warTaskList = CustomSMPPlugin.warTaskList.plus(pendingWarTask.taskId)
                                 sender.sendMessage(text("전쟁이 예약되었습니다. 각 팀은 10분의 준비 시간을 가집니다."))
                                 sender.sendMessage(text("전쟁을 중지하려면 '/smp war stop ${pendingWarTask.taskId}' 명령어를 입력하면 됩니다."))
@@ -792,7 +796,6 @@ object CustomSMPCommand {
                         }
                     }
                 }
-
             }
         }
     }
